@@ -23,7 +23,7 @@ The protocol consists of:
 ## Installation
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/OpenDive/robolingo.git
 cd learning-yield-protocol
 npm install
 ```
