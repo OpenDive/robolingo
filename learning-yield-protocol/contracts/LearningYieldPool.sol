@@ -1,12 +1,24 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+// Import Aave interfaces
+import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
+import {IAToken} from "@aave/core-v3/contracts/interfaces/IAToken.sol";
+
+/**
+ * @title LearningYieldPool
+ * @dev A smart contract for incentivized learning through pooled yield
+ * Users create learning groups, stake USDC, and earn yield based on their progress
+ * The pooled USDC is deposited into Aave for yield generation
+ */
 contract LearningYieldPool is Ownable, ReentrancyGuard {
     IERC20 public usdc;
+    IPool public aavePool;
+    IAToken public aToken;
     
     struct LearningGroup {
         address creator;
@@ -35,16 +47,38 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
     // AI agent address that can update progress
     address public aiAgent;
     
+    // Aave pool and aToken addresses
+    address public immutable AAVE_POOL;
+    address public immutable A_TOKEN;
+    
     event GroupCreated(uint256 indexed groupId, address creator, uint256 stakingAmount, uint256 duration);
     event UserStaked(uint256 indexed groupId, address user);
     event UserUnstaked(uint256 indexed groupId, address user);
     event ProgressUpdated(uint256 indexed groupId, address user, uint256 progress);
     event YieldDistributed(uint256 indexed groupId, uint256 totalYield);
     event YieldClaimed(uint256 indexed groupId, address user, uint256 amount);
+    event YieldDeposited(uint256 indexed groupId, uint256 amount);
+    event YieldWithdrawn(uint256 indexed groupId, uint256 amount, uint256 yield);
 
-    constructor(address _usdc, address _aiAgent) {
+    /**
+     * @dev Constructor initializes the contract with USDC, Aave Pool, and AI agent addresses
+     * @param _usdc Address of the USDC token contract
+     * @param _aavePool Address of the Aave lending pool
+     * @param _aToken Address of the Aave interest-bearing token for USDC
+     * @param _aiAgent Address of the AI agent that updates user progress
+     */
+    constructor(
+        address _usdc,
+        address _aavePool,
+        address _aToken,
+        address _aiAgent
+    ) {
         usdc = IERC20(_usdc);
+        aavePool = IPool(_aavePool);
+        aToken = IAToken(_aToken);
         aiAgent = _aiAgent;
+        AAVE_POOL = _aavePool;
+        A_TOKEN = _aToken;
     }
 
     function createLearningGroup(
@@ -69,6 +103,11 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         return groupId;
     }
 
+    /**
+     * @dev Stakes USDC into the learning group
+     * When the group is full, automatically deposits pooled USDC into Aave
+     * @param _groupId ID of the learning group
+     */
     function stake(uint256 _groupId) external nonReentrant {
         LearningGroup storage group = learningGroups[_groupId];
         require(group.isActive, "Group is not active");
@@ -76,15 +115,24 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         require(!group.users[msg.sender].hasStaked, "Already staked");
         require(group.memberCount < group.maxMembers, "Group is full");
 
+        // Transfer USDC from user to contract
         usdc.transferFrom(msg.sender, address(this), group.stakingAmount);
         
         group.users[msg.sender].hasStaked = true;
         group.totalStaked += group.stakingAmount;
         group.memberCount++;
 
+        // If group is full, deposit total staked amount to Aave
         if (group.memberCount == group.maxMembers) {
             group.startTime = block.timestamp;
-            // Here you would implement the logic to deposit to a yield protocol
+            
+            // Approve Aave pool to spend USDC
+            usdc.approve(AAVE_POOL, group.totalStaked);
+            
+            // Deposit to Aave
+            aavePool.supply(address(usdc), group.totalStaked, address(this), 0);
+            
+            emit YieldDeposited(_groupId, group.totalStaked);
         }
 
         emit UserStaked(_groupId, msg.sender);
@@ -122,7 +170,11 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         emit ProgressUpdated(_groupId, _user, _progressPercentage);
     }
 
-    function completeGroupAndDistributeYield(uint256 _groupId, uint256 _totalYield) external onlyOwner {
+    /**
+     * @dev Completes the group and withdraws funds from Aave including earned yield
+     * @param _groupId ID of the learning group
+     */
+    function completeGroupAndDistributeYield(uint256 _groupId) external onlyOwner {
         LearningGroup storage group = learningGroups[_groupId];
         require(group.isActive, "Group is not active");
         require(!group.isCompleted, "Group already completed");
@@ -131,14 +183,26 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
             "Learning period not finished"
         );
 
-        group.isCompleted = true;
-        group.totalYield = _totalYield;
-
-        // Here you would implement the logic to withdraw from yield protocol
+        // Calculate total aTokens (including yield) owned by this contract
+        uint256 aTokenBalance = aToken.balanceOf(address(this));
         
-        emit YieldDistributed(_groupId, _totalYield);
+        // Withdraw everything from Aave
+        aavePool.withdraw(address(usdc), aTokenBalance, address(this));
+        
+        // Calculate actual yield earned
+        uint256 totalWithYield = usdc.balanceOf(address(this));
+        group.totalYield = totalWithYield - group.totalStaked;
+        
+        group.isCompleted = true;
+        
+        emit YieldWithdrawn(_groupId, group.totalStaked, group.totalYield);
+        emit YieldDistributed(_groupId, group.totalYield);
     }
 
+    /**
+     * @dev Allows users to claim their initial stake plus earned yield based on progress
+     * @param _groupId ID of the learning group
+     */
     function claimYieldAndUnstake(uint256 _groupId) external nonReentrant {
         LearningGroup storage group = learningGroups[_groupId];
         require(group.isCompleted, "Group not completed");
@@ -146,12 +210,13 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         require(!group.users[msg.sender].hasClaimedYield, "Already claimed");
 
         uint256 progress = group.users[msg.sender].progressPercentage;
+        // Calculate yield share based on progress percentage
         uint256 yieldShare = (group.totalYield * progress) / 100;
 
         group.users[msg.sender].hasClaimedYield = true;
         group.users[msg.sender].yieldAllocation = yieldShare;
 
-        // Transfer initial stake + yield share
+        // Transfer initial stake plus earned yield share
         usdc.transfer(msg.sender, group.stakingAmount + yieldShare);
         
         emit YieldClaimed(_groupId, msg.sender, yieldShare);
@@ -204,4 +269,4 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
             user.yieldAllocation
         );
     }
-} 
+}
