@@ -38,7 +38,8 @@ export default function ChatSidebar({ onSelectGroup, selectedGroup }: ChatSideba
       members: 3,
       lastMessage: "¡Hola amigos! How's everyone doing?",
       time: "3h ago",
-      ethAmount: "0.1 ETH"
+      ethAmount: "0.1 ETH",
+      unread: 0
     });
   }
   
