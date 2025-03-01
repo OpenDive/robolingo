@@ -1,30 +1,32 @@
-import './globals.css'
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import { ChallengeProvider } from '@/contexts/ChallengeContext'
-import { WalletProvider } from '@/contexts/WalletContext'
+"use client"
 
-const inter = Inter({ subsets: ['latin'] })
+import "./globals.css";
+import { WalletProvider } from "@/contexts/WalletContext";
+import { ChallengeProvider } from "@/contexts/ChallengeContext";
+import { SuiWalletAdapter } from "@/components/wallet/SuiWalletAdapter";
+import { Roboto } from "next/font/google";
 
-export const metadata: Metadata = {
-  title: 'Language Learning App',
-  description: 'Learn languages with friends',
-}
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "500", "700", "900"],
+});
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode 
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="overflow-x-hidden">
-      <body className={inter.className}>
-        <WalletProvider>
-          <ChallengeProvider>
-            {children}
-          </ChallengeProvider>
-        </WalletProvider>
+    <html lang="en">
+      <body className={roboto.className}>
+        <SuiWalletAdapter>
+          <WalletProvider>
+            <ChallengeProvider>
+              {children}
+            </ChallengeProvider>
+          </WalletProvider>
+        </SuiWalletAdapter>
       </body>
     </html>
-  )
+  );
 }
