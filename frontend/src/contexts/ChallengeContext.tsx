@@ -43,7 +43,7 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [challenges, setChallenges] = useState<Challenge[]>([
     {
       id: 1,
-      title: 'Korean in 90 Days',
+      title: 'Korean Basics',
       language: 'korean',
       stake: '50 USDC',
       duration: 90,
