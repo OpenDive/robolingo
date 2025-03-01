@@ -12,10 +12,13 @@ The protocol consists of:
 
 - Node.js (LTS version recommended)
 - npm or yarn
-- Access to Ethereum network (local or testnet)
-- USDC token contract address
-- Aave V3 Pool contract address
-- Aave V3 aUSDC token address
+- Docker (for Hedera deployment)
+- Access to either:
+  - Ethereum network (local or Goerli testnet)
+  - Hedera network (testnet)
+- For Hedera deployment:
+  - Hedera testnet account (from [portal.hedera.com](https://portal.hedera.com))
+  - JSON-RPC Relay running
 
 ## Installation
 
@@ -25,10 +28,40 @@ cd learning-yield-protocol
 npm install
 ```
 
+## Configuration
+
+1. Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+2. Configure your `.env` file:
+- For Ethereum deployment:
+  ```
+  PRIVATE_KEY=your_ethereum_private_key
+  INFURA_API_KEY=your_infura_key
+  ETHERSCAN_API_KEY=your_etherscan_key
+  ```
+- For Hedera deployment:
+  ```
+  OPERATOR_ACCOUNT_ID=your_hedera_account_id
+  OPERATOR_ACCOUNT_PRIVATE_KEY=your_hedera_private_key
+  RPC_URL=http://localhost:7546
+  ```
+- Contract configuration (required for both):
+  ```
+  USDC_ADDRESS=usdc_contract_address
+  AAVE_POOL_ADDRESS=aave_pool_address
+  AUSDC_ADDRESS=ausdc_token_address
+  AI_AGENT_ADDRESS=ai_agent_address
+  ```
+
 ## Testing
 
 Run the test suite:
 ```bash
+npm test
+# or
 npx hardhat test
 ```
 
@@ -39,52 +72,41 @@ REPORT_GAS=true npx hardhat test
 
 ## Deployment
 
-1. Set up environment variables:
+### Ethereum Deployment
+
+1. Deploy to local network:
 ```bash
-# Create .env file
-cp .env.example .env
-
-# Edit .env with your values
-PRIVATE_KEY=your_private_key
-INFURA_API_KEY=your_infura_key
-USDC_ADDRESS=usdc_contract_address
-AAVE_POOL_ADDRESS=aave_pool_address
-AUSDC_ADDRESS=ausdc_token_address
-AI_AGENT_ADDRESS=ai_agent_address
-```
-
-2. Configure the network in hardhat.config.ts:
-```typescript
-networks: {
-    goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [process.env.PRIVATE_KEY]
-    }
-}
-```
-
-3. Deploy the contract:
-```bash
-# Deploy to local network
 npx hardhat node
 npx hardhat run scripts/deploy.ts --network localhost
+```
 
-# Deploy to testnet (Goerli)
+2. Deploy to Goerli testnet:
+```bash
 npx hardhat run scripts/deploy.ts --network goerli
 ```
 
-## Contract Addresses
+### Hedera Deployment
 
-After deployment, the contract addresses will be:
-- Goerli: `<to_be_filled_after_deployment>`
-- Mumbai: `<to_be_filled_after_deployment>`
+1. Start the JSON-RPC relay:
+```bash
+# Make sure Docker is running
+./util/04-rpcrelay-run.sh
+```
+
+2. Deploy to Hedera testnet:
+```bash
+npx hardhat run scripts/deploy.ts --network hedera_testnet
+```
 
 ## Contract Verification
 
-Verify the contract on Etherscan:
+### Ethereum
 ```bash
 npx hardhat verify --network goerli DEPLOYED_CONTRACT_ADDRESS CONSTRUCTOR_ARG1 CONSTRUCTOR_ARG2 CONSTRUCTOR_ARG3 CONSTRUCTOR_ARG4
 ```
+
+### Hedera
+Contract verification on Hedera is handled automatically during deployment.
 
 ## Usage
 

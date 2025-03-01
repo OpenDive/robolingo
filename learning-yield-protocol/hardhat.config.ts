@@ -13,6 +13,12 @@ const config: HardhatUserConfig = {
     goerli: {
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+    },
+    hedera_testnet: {
+      url: process.env.RPC_URL || "http://localhost:7546",
+      accounts: process.env.OPERATOR_ACCOUNT_PRIVATE_KEY ? 
+        [process.env.OPERATOR_ACCOUNT_PRIVATE_KEY] : [],
+      chainId: 296 // Hedera Testnet chainId
     }
   },
   etherscan: {
