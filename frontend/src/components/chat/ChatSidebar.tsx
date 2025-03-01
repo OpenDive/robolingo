@@ -14,7 +14,7 @@ interface Group {
   lastMessage: string
   time: string
   unread?: number
-  ethAmount: string
+  usdcAmount: string
 }
 
 interface ChatSidebarProps {
@@ -38,7 +38,7 @@ export default function ChatSidebar({ onSelectGroup, selectedGroup }: ChatSideba
       members: 3,
       lastMessage: "¡Hola amigos! How's everyone doing?",
       time: "3h ago",
-      ethAmount: "0.1 ETH",
+      usdcAmount: "100 USDC",
       unread: 0
     });
   }
@@ -94,7 +94,7 @@ export default function ChatSidebar({ onSelectGroup, selectedGroup }: ChatSideba
                   
                   <div className="flex justify-between items-center mt-1">
                     <p className="text-sm text-gray-600 truncate w-3/4">{currentGroup.lastMessage}</p>
-                    <span className="text-xs font-mono text-[#D4A84B]">{currentGroup.ethAmount}</span>
+                    <span className="text-xs font-mono text-[#D4A84B]">{currentGroup.usdcAmount}</span>
                   </div>
                   
                   <div className="mt-2 text-xs text-gray-500 font-mono">

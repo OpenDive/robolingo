@@ -66,12 +66,12 @@ export default function ChallengeDashboard({ challenge }: ChallengeDashboardProp
   ])
   
   const [dailyTasks, setDailyTasks] = useState([
-    { id: 1, name: "Lecture: Basic Greetings", completed: true, type: "lecture" },
-    { id: 2, name: "Practice: Conversation", completed: true, type: "practice" },
+    { id: 1, name: "Daily Practice: Conversation", completed: true, type: "practice" },
+    { id: 2, name: "Lesson: Basic Grammar", completed: false, type: "lesson" },
     { id: 3, name: "Quiz: Vocabulary Test", completed: false, type: "quiz" }
   ])
   
-  const estimatedYield = parseFloat(challenge.stake.replace(" ETH", "")) * 0.05
+  const estimatedYield = parseFloat(challenge.stake.replace(" USDC", "")) * 0.05
   
   const [timeRemaining, setTimeRemaining] = useState({
     days: challenge.daysLeft,
@@ -276,7 +276,7 @@ export default function ChallengeDashboard({ challenge }: ChallengeDashboardProp
                   <div className="text-sm text-primary-dark">Yield Up For Grabs</div>
                   <div className="font-mono font-bold text-lg text-primary-dark flex items-center">
                     <FiTrendingUp className="text-blueprint-line mr-1" />
-                    <span style={{ color: '#D4A84B' }}>{estimatedYield.toFixed(3)} ETH</span>
+                    <span style={{ color: '#D4A84B' }}>{estimatedYield.toFixed(3)} USDC</span>
                   </div>
                 </div>
                 

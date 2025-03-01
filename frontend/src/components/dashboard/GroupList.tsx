@@ -13,11 +13,48 @@ interface Group {
   lastMessage: string
   time: string
   unread?: number
-  ethAmount: string
+  usdcAmount: string
 }
 
 export default function GroupList() {
   const { groups } = useChallengeContext();
+
+  // Sample groups data
+  const sampleGroups: Group[] = [
+    {
+      id: "korean-gang",
+      name: "Korean Gang 🇰🇷",
+      avatar: "K",
+      avatarBg: "bg-purple-500",
+      members: 8,
+      lastMessage: "Did you guys see Mark's attempt at saying 안녕하세요?",
+      time: "2m ago",
+      unread: 3,
+      usdcAmount: "50 USDC"
+    },
+    {
+      id: "samurai-squad",
+      name: "Samurai Squad 🇯🇵",
+      avatar: "S",
+      avatarBg: "bg-blue-500",
+      members: 5,
+      lastMessage: "I'll complete today's lesson after dinner",
+      time: "1h ago",
+      unread: 0,
+      usdcAmount: "200 USDC"
+    },
+    {
+      id: "spanish-fiesta",
+      name: "Spanish Fiesta 🇪🇸",
+      avatar: "S",
+      avatarBg: "bg-green-500",
+      members: 6,
+      lastMessage: "[AI] Emma's on a 7-day streak...",
+      time: "3h ago",
+      unread: 12,
+      usdcAmount: "30 USDC"
+    }
+  ];
 
   return (
     <div>
@@ -32,7 +69,7 @@ export default function GroupList() {
       </div>
       
       <div className="space-y-3">
-        {groups.map((group) => (
+        {sampleGroups.map((group) => (
           <Link 
             key={group.id} 
             href={`/chat?group=${group.id}`}
@@ -69,7 +106,7 @@ export default function GroupList() {
                   
                   <div className="flex justify-between items-center mt-1">
                     <p className="text-sm text-gray-600 truncate w-3/4">{group.lastMessage}</p>
-                    <span className="text-xs font-mono text-[#D4A84B]">{group.ethAmount}</span>
+                    <span className="text-xs font-mono text-[#D4A84B]">{group.usdcAmount}</span>
                   </div>
                   
                   <div className="mt-2 text-xs text-gray-500 font-mono">
