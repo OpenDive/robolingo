@@ -26,19 +26,8 @@ export default function TodaysChallenge() {
       </div>
       
       <div className="flex items-center mb-4">
-        <div className="relative mr-4">
-          <div className="w-16 h-16 rounded-full bg-blueprint-bg border-2 border-blueprint-line relative overflow-hidden flex items-center justify-center">
-            {/* Gear-like avatar background */}
-            <div className="absolute inset-0 opacity-10 animate-spin-slow" style={{ 
-              backgroundImage: 'url(/images/floral-pattern.svg)', 
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}></div>
-            <span className="text-xl font-bold text-blueprint-line relative z-10">KR</span>
-          </div>
-          {/* Technical measurement circle */}
-          <div className="absolute -top-1 -left-1 -right-1 -bottom-1 rounded-full border-1 border-dashed border-blueprint-line opacity-30"></div>
+        <div className="mr-4">
+          <span className="text-4xl">🇰🇷</span>
         </div>
         
         <div>
