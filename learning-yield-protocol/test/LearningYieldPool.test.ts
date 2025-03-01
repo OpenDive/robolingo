@@ -253,4 +253,159 @@ describe("LearningYieldPool", function () {
       ).to.be.revertedWith("Already claimed");
     });
   });
+
+  describe("Progress and Yield Edge Cases", function () {
+    const stakingAmount = ethers.parseUnits("100", 6);
+    const duration = 86400;
+    const maxMembers = 3;  // Testing with 3 members
+
+    beforeEach(async function () {
+      await learningPool.createLearningGroup(stakingAmount, duration, maxMembers);
+      
+      // Setup three users
+      const users = [user1, user2];
+      for (const user of users) {
+        await mockUSDC.mint(user.address, stakingAmount);
+        await mockUSDC.connect(user).approve(learningPool.getAddress(), stakingAmount);
+        await learningPool.connect(user).stake(0);
+      }
+    });
+
+    it("Should handle zero progress correctly", async function () {
+      await learningPool.connect(aiAgent).updateProgress(0, user1.address, 100);
+      await learningPool.connect(aiAgent).updateProgress(0, user2.address, 0);
+
+      const yieldAmount = ethers.parseUnits("20", 6);
+      await mockAToken.mint(learningPool.getAddress(), yieldAmount);
+      
+      await ethers.provider.send("evm_increaseTime", [duration]);
+      await ethers.provider.send("evm_mine", []);
+      
+      await mockUSDC.mint(learningPool.getAddress(), yieldAmount);
+      await learningPool.connect(owner).completeGroupAndDistributeYield(0);
+
+      // User1 should get all yield (100/100 total progress)
+      await learningPool.connect(user1).claimYieldAndUnstake(0);
+      const user1Balance = await mockUSDC.balanceOf(user1.address);
+      expect(user1Balance).to.equal(stakingAmount + yieldAmount);
+
+      // User2 should only get stake back
+      await learningPool.connect(user2).claimYieldAndUnstake(0);
+      const user2Balance = await mockUSDC.balanceOf(user2.address);
+      expect(user2Balance).to.equal(stakingAmount);
+    });
+
+    it("Should handle equal progress distribution", async function () {
+      // Both users have 50% progress
+      await learningPool.connect(aiAgent).updateProgress(0, user1.address, 50);
+      await learningPool.connect(aiAgent).updateProgress(0, user2.address, 50);
+
+      const yieldAmount = ethers.parseUnits("20", 6);
+      await mockAToken.mint(learningPool.getAddress(), yieldAmount);
+      
+      await ethers.provider.send("evm_increaseTime", [duration]);
+      await ethers.provider.send("evm_mine", []);
+      
+      await mockUSDC.mint(learningPool.getAddress(), yieldAmount);
+      await learningPool.connect(owner).completeGroupAndDistributeYield(0);
+
+      // Both users should get equal yield
+      await learningPool.connect(user1).claimYieldAndUnstake(0);
+      const user1Balance = await mockUSDC.balanceOf(user1.address);
+      expect(user1Balance).to.equal(stakingAmount + yieldAmount / BigInt(2));
+
+      await learningPool.connect(user2).claimYieldAndUnstake(0);
+      const user2Balance = await mockUSDC.balanceOf(user2.address);
+      expect(user2Balance).to.equal(stakingAmount + yieldAmount / BigInt(2));
+    });
+  });
+
+  describe("Security and Access Control", function () {
+    const stakingAmount = ethers.parseUnits("100", 6);
+    const duration = 86400;
+    const maxMembers = 2;
+
+    it("Should not allow non-owner to complete group", async function () {
+      await learningPool.createLearningGroup(stakingAmount, duration, maxMembers);
+      await expect(
+        learningPool.connect(user1).completeGroupAndDistributeYield(0)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Should not allow non-AI agent to update progress", async function () {
+      await learningPool.createLearningGroup(stakingAmount, duration, maxMembers);
+      await expect(
+        learningPool.connect(owner).updateProgress(0, user1.address, 50)
+      ).to.be.revertedWith("Only AI agent can update progress");
+    });
+
+    it("Should allow owner to change AI agent", async function () {
+      await learningPool.connect(owner).setAiAgent(user1.address);
+      expect(await learningPool.aiAgent()).to.equal(user1.address);
+    });
+
+    it("Should not allow non-owner to change AI agent", async function () {
+      await expect(
+        learningPool.connect(user1).setAiAgent(user2.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+  });
+
+  describe("Group Management", function () {
+    const stakingAmount = ethers.parseUnits("100", 6);
+    const duration = 86400;
+    const maxMembers = 2;
+
+    it("Should track multiple groups correctly", async function () {
+      // Create two groups
+      await learningPool.createLearningGroup(stakingAmount, duration, maxMembers);
+      await learningPool.createLearningGroup(stakingAmount * BigInt(2), duration * 2, maxMembers + 1);
+
+      const group0 = await learningPool.getGroupInfo(0);
+      const group1 = await learningPool.getGroupInfo(1);
+
+      expect(group0.stakingAmount).to.equal(stakingAmount);
+      expect(group1.stakingAmount).to.equal(stakingAmount * BigInt(2));
+      expect(group0.duration).to.equal(duration);
+      expect(group1.duration).to.equal(duration * 2);
+      expect(group0.maxMembers).to.equal(maxMembers);
+      expect(group1.maxMembers).to.equal(maxMembers + 1);
+    });
+
+    it("Should handle group completion order independently", async function () {
+      // Create two groups with different durations
+      await learningPool.createLearningGroup(stakingAmount, duration, maxMembers);
+      await learningPool.createLearningGroup(stakingAmount, duration * 2, maxMembers);
+
+      // Setup users in both groups
+      await mockUSDC.mint(user1.address, stakingAmount * BigInt(2));
+      await mockUSDC.connect(user1).approve(learningPool.getAddress(), stakingAmount * BigInt(2));
+      await mockUSDC.mint(user2.address, stakingAmount * BigInt(2));
+      await mockUSDC.connect(user2).approve(learningPool.getAddress(), stakingAmount * BigInt(2));
+
+      // Stake in both groups
+      await learningPool.connect(user1).stake(0);
+      await learningPool.connect(user2).stake(0);
+      await learningPool.connect(user1).stake(1);
+      await learningPool.connect(user2).stake(1);
+
+      // Set progress
+      await learningPool.connect(aiAgent).updateProgress(0, user1.address, 50);
+      await learningPool.connect(aiAgent).updateProgress(0, user2.address, 50);
+      await learningPool.connect(aiAgent).updateProgress(1, user1.address, 50);
+      await learningPool.connect(aiAgent).updateProgress(1, user2.address, 50);
+
+      // Complete first group
+      await ethers.provider.send("evm_increaseTime", [duration]);
+      await ethers.provider.send("evm_mine", []);
+
+      const yieldAmount = ethers.parseUnits("20", 6);
+      await mockUSDC.mint(learningPool.getAddress(), yieldAmount);
+      await learningPool.connect(owner).completeGroupAndDistributeYield(0);
+
+      // Verify second group is still active
+      const group1 = await learningPool.getGroupInfo(1);
+      expect(group1.isCompleted).to.be.false;
+    });
+  });
 }); 
