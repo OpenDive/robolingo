@@ -1,7 +1,7 @@
 "use client"
 
 import "./globals.css";
-import { WalletProvider } from "@/contexts/WalletContext";
+import { WalletProvider } from "@/contexts/WalletProvider";
 import { ChallengeProvider } from "@/contexts/ChallengeContext";
 import { SuiWalletAdapter } from "@/components/wallet/SuiWalletAdapter";
 import { Roboto } from "next/font/google";

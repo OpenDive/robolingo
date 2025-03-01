@@ -119,31 +119,8 @@ struct UserInfo {
 
 🟣 Connecting to deployed contract...
 
-Stake function signature: FunctionFragment {
-  type: 'function',
-  inputs: [
-    ParamType {
-      name: '_groupId',
-      type: 'uint256',
-      baseType: 'uint256',
-      indexed: undefined,
-      components: null,
-      arrayLength: null,
-      arrayChildren: null
-    }
-  ],
-  name: 'stake',
-  constant: false,
-  outputs: [],
-  stateMutability: 'nonpayable',
-  payable: false,
-  gas: null
-}
 
 🟣 Creating a learning group...
-
-
-
 
 Group created! Transaction: 0x5eaee6aa52511258136ddbd9274e307030ef65fc7f9419a562057859ab14ca3f
 

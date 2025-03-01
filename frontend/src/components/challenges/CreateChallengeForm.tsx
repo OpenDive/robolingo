@@ -5,13 +5,22 @@ import { FiDollarSign, FiClock, FiUsers, FiLink, FiCheck, FiX, FiCopy } from 're
 import Link from 'next/link'
 import { generateInviteCode } from '@/utils/inviteCode'
 import { useChallengeContext } from '@/contexts/ChallengeContext';
+import { useWalletContext } from '@/contexts/WalletContext'
+import { ethers } from 'ethers'
+import { toast } from 'react-toastify'
 
 interface CreateChallengeFormProps {
   onComplete?: () => void;
 }
 
+// Add contract ABIs and addresses
+const LEARNING_POOL_ADDRESS = "0xEeBcBd2641DA50D9Ab8a6bC7e3f2Fff191f48e10"
+const USDC_ADDRESS = "0x0000000000000000000000000000000000001549" // Hedera Testnet USDC
+const USDC_DECIMALS = 6
+
 export default function CreateChallengeForm({ onComplete }: CreateChallengeFormProps) {
   const { addChallenge, addGroup } = useChallengeContext();
+  const { status, signer } = useWalletContext();
   const [challengeType, setChallengeType] = useState<'no-loss' | 'hardcore'>('no-loss')
   const [title, setTitle] = useState('')
   const [language, setLanguage] = useState('')
@@ -24,6 +33,7 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
   const [inviteCode, setInviteCode] = useState('')
   const [showCopiedMessage, setShowCopiedMessage] = useState(false)
   const [showCopiedLinkMessage, setShowCopiedLinkMessage] = useState(false)
+  const [isStaking, setIsStaking] = useState(false)
   
   const handleAddParticipant = () => {
     setParticipants([...participants, ''])
@@ -41,65 +51,119 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
     setParticipants(newParticipants)
   }
   
-  const handleCreateChallenge = (e: React.FormEvent) => {
+  const handleCreateChallenge = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Generate invite code
-    const code = generateInviteCode(challengeType)
-    setInviteCode(code)
-    
-    // Create invite link
-    const baseUrl = window.location.origin
-    const link = `${baseUrl}/invite/${code}`
-    setInviteLink(link)
-    
-    // Create new challenge
-    const challenge = {
-      id: Date.now().toString(),
-      title,
-      language,
-      stake: `${stake} USDC`,
-      duration: parseInt(duration),
-      dailyMinutes: parseInt(minDailyTime),
-      participants: participants.filter(p => p.trim() !== '').length + 1, // +1 for the creator
-      type: challengeType,
-      createdAt: new Date().toISOString(),
-      daysLeft: parseInt(duration),
-      progress: 0,
+    if (status !== 'connected') {
+      toast.error('Please connect your wallet first')
+      return
     }
-    
-    // Add challenge to context
-    addChallenge(challenge)
-    
-    // Add group for this challenge
-    addGroup({
-      id: challenge.id,
-      name: challenge.title,
-      flag: language === 'japanese' ? '🇯🇵' : 
-            language === 'spanish' ? '🇪🇸' : 
-            language === 'french' ? '🇫🇷' : 
-            language === 'german' ? '🇩🇪' : 
-            language === 'italian' ? '🇮🇹' : 
-            language === 'portuguese' ? '🇵🇹' : 
-            language === 'russian' ? '🇷🇺' : 
-            language === 'korean' ? '🇰🇷' : 
-            language === 'chinese' ? '🇨🇳' : '🌍',
-      avatar: language.charAt(0).toUpperCase(),
-      avatarBg: `bg-${['blue', 'green', 'purple', 'red', 'yellow'][Math.floor(Math.random() * 5)]}-500`,
-      members: participants.filter(p => p.trim() !== '').length + 1,
-      lastMessage: "Group created! Let's start learning together!",
-      time: "Just now",
-      unread: 0,
-      usdcAmount: `${stake} USDC`,
-      description: `${language.charAt(0).toUpperCase() + language.slice(1)} learning group`
-    })
-    
-    // Show success screen
-    setShowSuccessScreen(true)
-    
-    // Call onComplete callback if provided
-    if (onComplete) {
-      onComplete()
+
+    try {
+      setIsStaking(true)
+
+      // Create contract instances
+      const usdcContract = new ethers.Contract(
+        USDC_ADDRESS,
+        ['function approve(address spender, uint256 amount) public returns (bool)',
+         'function allowance(address owner, address spender) public view returns (uint256)'],
+        signer
+      )
+
+      const learningPool = new ethers.Contract(
+        LEARNING_POOL_ADDRESS,
+        ['function createLearningGroup(uint256 _stakingAmount, uint256 _duration, uint256 _maxMembers) public returns (uint256)',
+         'function stake(uint256 _groupId) public'],
+        signer
+      )
+
+      // Convert stake amount to proper decimals
+      const stakeAmount = ethers.parseUnits(stake, USDC_DECIMALS)
+      
+      // Check existing allowance
+      const currentAllowance = await usdcContract.allowance(
+        await signer.getAddress(),
+        LEARNING_POOL_ADDRESS
+      )
+
+      // Approve USDC spend if needed
+      if (currentAllowance < stakeAmount) {
+        const approveTx = await usdcContract.approve(
+          LEARNING_POOL_ADDRESS,
+          stakeAmount,
+          { gasLimit: 1000000 }
+        )
+        toast.info('Approving USDC spend...')
+        await approveTx.wait()
+        toast.success('USDC approved!')
+      }
+
+      // Create learning group
+      const durationInSeconds = parseInt(duration) * 24 * 60 * 60 // Convert days to seconds
+      const createTx = await learningPool.createLearningGroup(
+        stakeAmount,
+        durationInSeconds,
+        participants.length + 1, // +1 for creator
+        { gasLimit: 1000000 }
+      )
+      
+      toast.info('Creating learning group...')
+      const receipt = await createTx.wait()
+      
+      // Get group ID from event logs
+      const groupId = receipt.logs[0].topics[1] // Assuming GroupCreated event is first log
+      
+      // Stake in the group
+      const stakeTx = await learningPool.stake(groupId, { gasLimit: 1000000 })
+      toast.info('Staking USDC...')
+      await stakeTx.wait()
+      toast.success('Successfully staked!')
+
+      // Create challenge object and update UI
+      const challenge = {
+        id: groupId.toString(),
+        title,
+        language,
+        stake: `${stake} USDC`,
+        duration: parseInt(duration),
+        dailyMinutes: parseInt(minDailyTime),
+        participants: participants.filter(p => p.trim() !== '').length + 1,
+        type: challengeType,
+        createdAt: new Date(),
+        daysLeft: parseInt(duration),
+        progress: 0,
+      }
+
+      // Add to context and show success
+      addChallenge(challenge)
+      addGroup({
+        name: challenge.title,
+        flag: language === 'japanese' ? '🇯🇵' : 
+              language === 'spanish' ? '🇪🇸' : 
+              language === 'french' ? '🇫🇷' : 
+              language === 'german' ? '🇩🇪' : 
+              language === 'italian' ? '🇮🇹' : 
+              language === 'portuguese' ? '🇵🇹' : 
+              language === 'russian' ? '🇷🇺' : 
+              language === 'korean' ? '🇰🇷' : 
+              language === 'chinese' ? '🇨🇳' : '🌍',
+        avatar: language.charAt(0).toUpperCase(),
+        avatarBg: `bg-${['blue', 'green', 'purple', 'red', 'yellow'][Math.floor(Math.random() * 5)]}-500`,
+        members: participants.filter(p => p.trim() !== '').length + 1,
+        lastMessage: "Group created! Let's start learning together!",
+        time: "Just now",
+        unread: 0,
+        usdcAmount: `${stake} USDC`,
+      })
+      
+      setShowSuccessScreen(true)
+      if (onComplete) onComplete()
+
+    } catch (error: any) {
+      console.error('Creation failed:', error)
+      toast.error(error.message || 'Failed to create challenge')
+    } finally {
+      setIsStaking(false)
     }
   }
   
@@ -303,9 +367,19 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
           <div className="mt-8">
             <button
               type="submit"
-              className="w-full bg-[#2A2A2A] hover:bg-[#3A3A3A] text-[#D4A84B] font-bold py-3 px-6 rounded-lg border border-[#D4A84B] transition-colors duration-300"
+              disabled={isStaking || status !== 'connected'}
+              className={`w-full ${
+                isStaking || status !== 'connected'
+                  ? 'bg-gray-500 cursor-not-allowed'
+                  : 'bg-[#2A2A2A] hover:bg-[#3A3A3A]'
+              } text-[#D4A84B] font-bold py-3 px-6 rounded-lg border border-[#D4A84B] transition-colors duration-300`}
             >
-              Create Challenge
+              {isStaking 
+                ? 'Creating Challenge...' 
+                : status !== 'connected'
+                ? 'Connect Wallet to Create'
+                : 'Create Challenge'
+              }
             </button>
           </div>
         </form>
