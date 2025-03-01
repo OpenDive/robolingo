@@ -256,6 +256,18 @@ class EnrollmentService extends BaseService<Enrollment, EnrollmentRepository> {
   async processExpiredEnrollments(): Promise<number> {
     return this.repository.checkExpiredEnrollments();
   }
+
+  /**
+   * Get a single enrollment for a user and course
+   * @param userId - ID of the user
+   * @param courseId - ID of the course
+   * @returns Promise resolving to the enrollment or null if not found
+   */
+  async getUserEnrollment(userId: string, courseId: string): Promise<Enrollment | null> {
+    return Enrollment.findOne({
+      where: { userId, courseId }
+    });
+  }
 }
 
 export default EnrollmentService;

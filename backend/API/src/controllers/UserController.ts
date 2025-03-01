@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
 import { UserService } from '../services';
 import { UserRole } from '../models/User';
+import { User } from '../models';
 
 /**
  * Controller for user-related API endpoints
@@ -60,24 +61,25 @@ class UserController extends BaseController<any> {
    */
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { email, password } = req.body;
+      const { walletAddress, signature } = req.body;
       
-      const { user, token } = await this.userService.login(email, password);
+      // Verify signature logic here
+      const user = await User.findOne({ where: { walletAddress } });
       
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user.toJSON();
-      
-      res.json({
-        user: userWithoutPassword,
-        token
-      });
-    } catch (error) {
-      if (error instanceof Error && 
-          (error.message === 'Invalid email or password' ||
-           error.message === 'Account is inactive. Please contact support.')) {
-        res.status(401).json({ message: error.message });
+      if (!user) {
+        // Auto-create user if not exists
+        const newUser = await User.create({
+            walletAddress,
+            friends: [],
+            dailyProgress: {},
+            streak: 0
+        });
+        res.json(newUser);
         return;
       }
+
+      res.json(user);
+    } catch (error) {
       next(error);
     }
   };

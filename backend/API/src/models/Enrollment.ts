@@ -31,13 +31,16 @@ import {
     certificateIssued: boolean;
     certificateUrl?: string;
     paymentId?: string;
+    stake: number;
+    challengeType: 'no-loss' | 'hardcore';
+    transactionHash?: string;
     createdAt: Date;
     updatedAt: Date;
   }
   
   // Attributes for Enrollment creation
   interface EnrollmentCreationAttributes extends Optional<EnrollmentAttributes, 
-    'id' | 'createdAt' | 'updatedAt' | 'enrolledAt' | 'status' | 'progress' | 'certificateIssued'> {}
+    'id' | 'createdAt' | 'updatedAt' | 'enrolledAt' | 'status' | 'progress' | 'certificateIssued' | 'transactionHash'> {}
   
   /**
    * Enrollment model tracking student course enrollments
@@ -56,6 +59,9 @@ import {
     public certificateIssued!: boolean;
     public certificateUrl!: string | undefined;
     public paymentId!: string | undefined;
+    public stake!: number;
+    public challengeType!: 'no-loss' | 'hardcore';
+    public transactionHash!: string | undefined;
   
     // Timestamps
     public readonly createdAt!: Date;
@@ -194,6 +200,19 @@ import {
         type: DataTypes.STRING,
         allowNull: true,
         comment: 'Reference to payment system transaction ID',
+      },
+      stake: {
+        type: DataTypes.DECIMAL(10, 18),
+        allowNull: false,
+        defaultValue: 0
+      },
+      challengeType: {
+        type: DataTypes.ENUM('no-loss', 'hardcore'),
+        allowNull: false
+      },
+      transactionHash: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       createdAt: {
         type: DataTypes.DATE,
