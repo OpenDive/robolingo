@@ -23,9 +23,10 @@ export default function InvitePage() {
         // For now, we'll use mock data
         setChallenge({
           title: "Korean in 90 Days",
+          language: "korean",
           type: (params.code as string).startsWith('NL') ? 'no-loss' : 'hardcore',
-          stake: "0.05 ETH",
-          duration: "90 days",
+          stake: "50 USDC",
+          duration: 90,
           minDailyTime: "30 minutes",
           participants: 3
         })
@@ -64,7 +65,7 @@ export default function InvitePage() {
                 
                 <div className="flex items-center text-blueprint-line">
                   <FiClock className="mr-2" />
-                  <span>Duration: {challenge.duration}</span>
+                  <span>Duration: {challenge.duration} days</span>
                 </div>
                 
                 <div className="flex items-center text-blueprint-line">

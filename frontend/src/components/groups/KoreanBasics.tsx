@@ -17,10 +17,14 @@ export default function KoreanBasics() {
   const [newMessage, setNewMessage] = useState('')
   
   const groupInfo = {
-    name: "Korean Gang 🇰🇷",
-    members: 8,
-    languages: ["English", "Korean"],
-    pool: "0.05 ETH x 8 members"
+    name: "Korean Language Basics",
+    description: "Learn the fundamentals of Korean language together",
+    participants: 8,
+    meetingTime: "Tuesdays & Thursdays, 7 PM EST",
+    nextMeeting: "May 16th, 2023 - 7:00 PM EST",
+    goals: ["Master Hangul", "Basic conversation", "500 common words"],
+    progress: 35,
+    pool: "50 USDC x 8 members"
   }
   
   const messages: Message[] = [
@@ -102,14 +106,14 @@ export default function KoreanBasics() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-blueprint-line" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span className="text-sm font-mono">{groupInfo.members} members</span>
+            <span className="text-sm font-mono">{groupInfo.participants} members</span>
           </div>
           
           <div className="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-blueprint-line" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
             </svg>
-            <span className="text-sm font-mono">{groupInfo.languages.join(", ")}</span>
+            <span className="text-sm font-mono">{groupInfo.goals.join(", ")}</span>
           </div>
         </div>
         

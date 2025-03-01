@@ -49,253 +49,116 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
     setInviteCode(code)
     
     // Create invite link
-    const link = `${window.location.origin}/invite/${code}`
+    const baseUrl = window.location.origin
+    const link = `${baseUrl}/invite/${code}`
     setInviteLink(link)
     
-    // Add challenge to context
-    addChallenge({
-      title: title,
+    // Create new challenge
+    const challenge = {
+      id: Date.now().toString(),
+      title,
+      language,
+      stake: `${stake} USDC`,
+      duration: parseInt(duration),
+      dailyMinutes: parseInt(minDailyTime),
+      participants: participants.filter(p => p.trim() !== '').length + 1, // +1 for the creator
+      type: challengeType,
+      createdAt: new Date().toISOString(),
       daysLeft: parseInt(duration),
-      stake: `${stake} ETH`,
-      participants: participants.length + 1, // +1 for the creator
-      language: language,
-      minDailyTime: parseInt(minDailyTime),
-      type: challengeType === 'no-loss' ? 'no-loss' : 'hardcore',
-      createdAt: new Date()
-    });
-    
-    // Add group to context if it's a group challenge
-    if (participants.length > 0) {
-      // Create a group name based on the challenge title
-      const groupName = `${title} Group`;
-      
-      // Determine flag emoji based on language
-      let flag = '🌎';
-      if (language === 'korean') flag = '🇰🇷';
-      if (language === 'japanese') flag = '🇯🇵';
-      if (language === 'mandarin') flag = '🇨🇳';
-      if (language === 'spanish') flag = '🇪🇸';
-      if (language === 'french') flag = '🇫🇷';
-      
-      addGroup({
-        name: groupName,
-        flag: flag,
-        avatar: groupName.charAt(0).toUpperCase(),
-        avatarBg: "bg-indigo-500",
-        members: participants.length + 1, // +1 for the creator
-        lastMessage: "Challenge created! Let's get started!",
-        time: "just now",
-        unread: 0,
-        ethAmount: `${stake} ETH`
-      });
+      progress: 0,
     }
     
+    // Add challenge to context
+    addChallenge(challenge)
+    
+    // Add group for this challenge
+    addGroup({
+      id: challenge.id,
+      name: challenge.title,
+      description: `${challenge.language} learning group`,
+      participants: participants.filter(p => p.trim() !== '').length + 1,
+      usdcAmount: `${stake} USDC`
+    })
+    
     // Show success screen
-    setShowSuccessScreen(true);
+    setShowSuccessScreen(true)
     
     // Call onComplete callback if provided
     if (onComplete) {
-      onComplete();
+      onComplete()
     }
   }
-
-  const handleCopyCode = () => {
+  
+  const copyInviteCode = () => {
     navigator.clipboard.writeText(inviteCode)
     setShowCopiedMessage(true)
     setTimeout(() => setShowCopiedMessage(false), 2000)
   }
   
-  const handleCopyLink = () => {
+  const copyInviteLink = () => {
     navigator.clipboard.writeText(inviteLink)
     setShowCopiedLinkMessage(true)
     setTimeout(() => setShowCopiedLinkMessage(false), 2000)
   }
   
   return (
-    <div className="relative max-w-3xl mx-auto">
-      {/* Technical drawing measurement lines */}
-      <div className="absolute -left-2 top-0 h-full w-px bg-blueprint-line opacity-10"></div>
-      <div className="absolute left-0 -top-2 w-full h-px bg-blueprint-line opacity-10"></div>
-      
-      {/* Corner gear decorations */}
-      <div className="absolute -left-4 -top-4 w-16 h-16 opacity-20">
-        <div className="w-full h-full animate-spin-slower" style={{ 
-          backgroundImage: 'url(/images/floral-pattern.svg)', 
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center'
-        }}></div>
-      </div>
-      
-      <div className="absolute -right-4 -top-4 w-12 h-12 opacity-15">
-        <div className="w-full h-full animate-spin-reverse" style={{ 
-          backgroundImage: 'url(/images/floral-pattern.svg)', 
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center'
-        }}></div>
-      </div>
-      
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold blueprint-heading relative">
-          Create New Challenge
-          {/* Small gear decoration */}
-          <div className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-30">
-            <div className="w-full h-full animate-spin-slow" style={{ 
-              backgroundImage: 'url(/images/floral-pattern.svg)', 
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}></div>
-          </div>
-        </h1>
-      </div>
-      
-      {showSuccessScreen ? (
-        <div className="bg-blueprint-bg border-1 border-blueprint-line rounded-xl p-8 relative overflow-hidden">
-          {/* Success floral decoration */}
-          <div className="absolute -right-10 -bottom-10 w-40 h-40 opacity-10">
-            <div className="w-full h-full" style={{ 
-              backgroundImage: 'url(/images/floral-pattern.svg)', 
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}></div>
-          </div>
-          
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#D4A84B]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiCheck className="text-3xl text-[#D4A84B]" />
-            </div>
-            
-            <h2 className="text-xl font-bold text-blueprint-line mb-2">Challenge Created!</h2>
-            <p className="text-gray-600 mb-6">Share this invite link with your friends</p>
-            
-            <div className="flex items-center justify-center mb-6">
-              <div className="bg-blueprint-bg/50 border border-blueprint-line rounded-l-lg py-3 px-4 flex-grow font-mono text-sm overflow-hidden text-ellipsis">
-                {inviteLink}
-              </div>
-              <button 
-                className="bg-[#D4A84B] text-[#1A1A1A] py-3 px-4 rounded-r-lg hover:bg-[#B38728] transition-colors duration-300 relative"
-                onClick={handleCopyLink}
-              >
-                Copy
-                {showCopiedLinkMessage && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#1A1A1A] text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                    Copied!
-                  </div>
-                )}
-              </button>
-            </div>
-            
-            {/* Invite Code Section */}
-            <div className="mb-6">
-              <p className="text-gray-600 mb-2">Or share this invite code</p>
-              <div className="flex items-center justify-center space-x-2">
-                <div className="bg-blueprint-bg/50 border border-blueprint-line rounded-lg py-3 px-6 font-mono text-lg tracking-wider">
-                  {inviteCode}
-                </div>
-                <button
-                  onClick={handleCopyCode}
-                  className="bg-transparent hover:bg-blueprint-line text-blueprint-line hover:text-blueprint-bg p-3 border border-blueprint-line rounded-lg transition-colors duration-300 relative"
-                >
-                  <FiCopy />
-                  {showCopiedMessage && (
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#1A1A1A] text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                      Copied!
-                    </div>
-                  )}
-                </button>
-              </div>
-            </div>
-            
-            <div className="flex justify-center space-x-4">
-              <Link 
-                href="/"
-                className="bg-transparent hover:bg-blueprint-line text-blueprint-line hover:text-blueprint-bg font-semibold py-2 px-6 border-1 border-blueprint-line rounded-full transition-all duration-300"
-              >
-                Back to Home
-              </Link>
-              <button 
-                onClick={() => setShowSuccessScreen(false)}
-                className="bg-[#D4A84B] text-[#1A1A1A] font-semibold py-2 px-6 rounded-full hover:bg-[#B38728] transition-all duration-300"
-              >
-                Create Another
-              </button>
-            </div>
-          </div>
-          
-          {/* Blueprint coordinates */}
-          <div className="absolute bottom-2 right-2 text-xs font-mono text-blueprint-line opacity-30">
-            CC-SUCCESS.1
-          </div>
-        </div>
-      ) : (
-        <form onSubmit={handleCreateChallenge} className="bg-blueprint-bg border-1 border-blueprint-line rounded-xl p-8 relative overflow-hidden">
-          {/* Form floral decoration */}
-          <div className="absolute -right-10 -bottom-10 w-40 h-40 opacity-10">
-            <div className="w-full h-full" style={{ 
-              backgroundImage: 'url(/images/floral-pattern.svg)', 
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}></div>
-          </div>
+    <div className="max-w-4xl mx-auto w-full min-h-[80vh] px-4 py-6">
+      {!showSuccessScreen ? (
+        <form onSubmit={handleCreateChallenge} className="p-6 md:p-8 bg-blueprint-bg border border-blueprint-line rounded-lg shadow-lg w-full">
+          <h1 className="text-2xl font-bold mb-6 text-blueprint-line font-mono">Create New Challenge</h1>
           
           <div className="mb-6">
             <label className="block text-blueprint-line font-mono text-sm mb-2">Challenge Type</label>
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                className={`flex-1 py-3 px-4 rounded-lg border ${
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                className={`cursor-pointer p-4 rounded-lg border transition-all duration-300 flex flex-col ${
                   challengeType === 'no-loss' 
-                    ? 'bg-[#D4A84B]/10 border-[#D4A84B] text-[#D4A84B]' 
-                    : 'bg-blueprint-bg border-blueprint-line text-blueprint-line'
-                } transition-colors duration-300`}
+                    ? 'border-[#D4A84B] bg-[#2A2A2A]' 
+                    : 'border-blueprint-line bg-blueprint-bg hover:border-[#D4A84B]'
+                }`}
                 onClick={() => setChallengeType('no-loss')}
               >
-                <div className="flex items-center justify-center">
-                  <div className={`w-5 h-5 rounded-full border ${
-                    challengeType === 'no-loss' ? 'border-[#D4A84B]' : 'border-blueprint-line'
-                  } flex items-center justify-center mr-2`}>
-                    {challengeType === 'no-loss' && <div className="w-3 h-3 rounded-full bg-[#D4A84B]"></div>}
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-bold text-blueprint-line">No-Loss</h3>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                    challengeType === 'no-loss' ? 'bg-[#D4A84B]' : 'bg-blueprint-line'
+                  }`}>
+                    {challengeType === 'no-loss' && <FiCheck className="text-black" />}
                   </div>
-                  <span>No-Loss</span>
                 </div>
                 <p className="text-xs mt-1 text-gray-500">Get your stake back regardless of completion</p>
-              </button>
+              </div>
               
-              <button
-                type="button"
-                className={`flex-1 py-3 px-4 rounded-lg border ${
+              <div
+                className={`cursor-pointer p-4 rounded-lg border transition-all duration-300 flex flex-col ${
                   challengeType === 'hardcore' 
-                    ? 'bg-[#D4A84B]/10 border-[#D4A84B] text-[#D4A84B]' 
-                    : 'bg-blueprint-bg border-blueprint-line text-blueprint-line'
-                } transition-colors duration-300`}
+                    ? 'border-[#D4A84B] bg-[#2A2A2A]' 
+                    : 'border-blueprint-line bg-blueprint-bg hover:border-[#D4A84B]'
+                }`}
                 onClick={() => setChallengeType('hardcore')}
               >
-                <div className="flex items-center justify-center">
-                  <div className={`w-5 h-5 rounded-full border ${
-                    challengeType === 'hardcore' ? 'border-[#D4A84B]' : 'border-blueprint-line'
-                  } flex items-center justify-center mr-2`}>
-                    {challengeType === 'hardcore' && <div className="w-3 h-3 rounded-full bg-[#D4A84B]"></div>}
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-bold text-blueprint-line">Hardcore</h3>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                    challengeType === 'hardcore' ? 'bg-[#D4A84B]' : 'bg-blueprint-line'
+                  }`}>
+                    {challengeType === 'hardcore' && <FiCheck className="text-black" />}
                   </div>
-                  <span>Hardcore</span>
                 </div>
-                <p className="text-xs mt-1 text-gray-500">Lose deposit if daily requirements not met</p>
-              </button>
+                <p className="text-xs mt-1 text-gray-500">Lose your stake if you don't meet requirements</p>
+              </div>
             </div>
           </div>
           
           <div className="mb-6">
             <label htmlFor="title" className="block text-blueprint-line font-mono text-sm mb-2">Challenge Title</label>
-            <input
-              type="text"
+            <input 
+              type="text" 
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-blueprint-bg border border-blueprint-line rounded-lg px-4 py-3 text-blueprint-line focus:border-[#D4A84B] focus:outline-none transition-colors duration-300"
-              placeholder="e.g., Korean in 90 Days"
+              placeholder="e.g., Korean Language 90-Day Challenge"
               required
             />
           </div>
@@ -324,7 +187,7 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
               <label htmlFor="stake" className="block text-blueprint-line font-mono text-sm mb-2">
                 <div className="flex items-center">
                   <FiDollarSign className="mr-1" />
-                  <span>Minimum Stake (ETH)</span>
+                  <span>Minimum Stake (USDC)</span>
                 </div>
               </label>
               <input
@@ -333,7 +196,7 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
                 value={stake}
                 onChange={(e) => setStake(e.target.value)}
                 className="w-full bg-blueprint-bg border border-blueprint-line rounded-lg px-4 py-3 text-blueprint-line focus:border-[#D4A84B] focus:outline-none transition-colors duration-300"
-                placeholder="e.g., 0.05"
+                placeholder="e.g., 1000"
                 required
               />
             </div>
@@ -367,84 +230,133 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
                 <span>Minimum Daily Time (minutes)</span>
               </div>
             </label>
-            <input
-              type="number"
+            <select
               id="minDailyTime"
               value={minDailyTime}
               onChange={(e) => setMinDailyTime(e.target.value)}
               className="w-full bg-blueprint-bg border border-blueprint-line rounded-lg px-4 py-3 text-blueprint-line focus:border-[#D4A84B] focus:outline-none transition-colors duration-300"
-              min="5"
-              max="120"
               required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {challengeType === 'hardcore' ? 
-                `Participants will lose their deposit if they don't study for at least ${minDailyTime} minutes each day.` : 
-                `Participants should study for at least ${minDailyTime} minutes each day to complete the challenge.`}
-            </p>
+            >
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="45">45 minutes</option>
+              <option value="60">60 minutes</option>
+              <option value="90">90 minutes</option>
+            </select>
           </div>
           
           <div className="mb-6">
             <label className="block text-blueprint-line font-mono text-sm mb-2">
               <div className="flex items-center">
                 <FiUsers className="mr-1" />
-                <span>Add Participants</span>
+                <span>Participants</span>
               </div>
             </label>
             
             <div className="space-y-3">
               {participants.map((participant, index) => (
-                <div key={index} className="flex items-center space-x-2">
+                <div key={index} className="flex items-center">
                   <input
                     type="text"
                     value={participant}
                     onChange={(e) => handleParticipantChange(index, e.target.value)}
                     className="flex-grow bg-blueprint-bg border border-blueprint-line rounded-lg px-4 py-3 text-blueprint-line focus:border-[#D4A84B] focus:outline-none transition-colors duration-300"
-                    placeholder="Email or wallet address"
+                    placeholder={`Participant ${index + 1} email or wallet address`}
                   />
                   {index > 0 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveParticipant(index)}
-                      className="p-3 bg-blueprint-bg border border-blueprint-line rounded-lg text-blueprint-line hover:bg-blueprint-line hover:text-blueprint-bg transition-colors duration-300"
+                      className="ml-2 p-2 text-blueprint-line hover:text-red-500 transition-colors"
                     >
-                      <FiX />
+                      <FiX size={20} />
                     </button>
                   )}
                 </div>
               ))}
+              
+              <button
+                type="button"
+                onClick={handleAddParticipant}
+                className="mt-2 text-sm text-blueprint-line hover:text-[#D4A84B] font-medium transition-colors inline-flex items-center"
+              >
+                <FiUsers className="mr-1" />
+                Add Participant
+              </button>
             </div>
-            
-            <button
-              type="button"
-              onClick={handleAddParticipant}
-              className="mt-3 flex items-center text-[#D4A84B] hover:text-[#B38728] transition-colors duration-300"
-            >
-              <FiUsers className="mr-1" />
-              <span>Add Another Participant</span>
-            </button>
           </div>
           
-          <div className="flex justify-end">
-            <Link 
-              href="/"
-              className="bg-transparent hover:bg-blueprint-line text-blueprint-line hover:text-blueprint-bg font-semibold py-2 px-6 border-1 border-blueprint-line rounded-full transition-all duration-300 mr-4"
-            >
-              Cancel
-            </Link>
-            <button 
+          <div className="mt-8">
+            <button
               type="submit"
-              className="bg-[#D4A84B] text-[#1A1A1A] font-semibold py-2 px-6 rounded-full hover:bg-[#B38728] transition-all duration-300"
+              className="w-full bg-[#2A2A2A] hover:bg-[#3A3A3A] text-[#D4A84B] font-bold py-3 px-6 rounded-lg border border-[#D4A84B] transition-colors duration-300"
             >
               Create Challenge
             </button>
           </div>
-          
-          {/* Blueprint coordinates */}
-          <div className="absolute bottom-2 right-2 text-xs font-mono text-blueprint-line opacity-30">
-            CC-FORM.1
-          </div>
         </form>
+      ) : (
+        <div className="p-6 md:p-8 bg-blueprint-bg border border-blueprint-line rounded-lg shadow-lg w-full">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-[#2A2A2A] rounded-full flex items-center justify-center text-[#D4A84B]">
+              <FiCheck size={30} />
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-bold text-center mb-4 text-blueprint-line font-mono">Challenge Created!</h2>
+          <p className="text-center text-blueprint-line mb-8">Your challenge has been created. Share the invite code or link with friends to join.</p>
+          
+          <div className="mb-8">
+            <label className="block text-blueprint-line font-mono text-sm mb-2">
+              <div className="flex items-center">
+                <FiLink className="mr-1" />
+                <span>Invite Code</span>
+              </div>
+            </label>
+            <div className="flex">
+              <div className="flex-grow bg-blueprint-bg border border-blueprint-line rounded-l-lg px-4 py-3 text-[#D4A84B] font-mono">
+                {inviteCode}
+              </div>
+              <button
+                type="button"
+                onClick={copyInviteCode}
+                className="bg-[#2A2A2A] border border-l-0 border-blueprint-line rounded-r-lg px-4 text-blueprint-line hover:text-[#D4A84B] transition-colors"
+              >
+                {showCopiedMessage ? <FiCheck size={20} /> : <FiCopy size={20} />}
+              </button>
+            </div>
+          </div>
+          
+          <div className="mb-8">
+            <label className="block text-blueprint-line font-mono text-sm mb-2">
+              <div className="flex items-center">
+                <FiLink className="mr-1" />
+                <span>Invite Link</span>
+              </div>
+            </label>
+            <div className="flex">
+              <div className="flex-grow bg-blueprint-bg border border-blueprint-line rounded-l-lg px-4 py-3 text-[#D4A84B] font-mono truncate">
+                {inviteLink}
+              </div>
+              <button
+                type="button"
+                onClick={copyInviteLink}
+                className="bg-[#2A2A2A] border border-l-0 border-blueprint-line rounded-r-lg px-4 text-blueprint-line hover:text-[#D4A84B] transition-colors"
+              >
+                {showCopiedLinkMessage ? <FiCheck size={20} /> : <FiCopy size={20} />}
+              </button>
+            </div>
+          </div>
+          
+          <div className="mt-8">
+            <Link
+              href="/dashboard"
+              className="block w-full bg-[#2A2A2A] hover:bg-[#3A3A3A] text-[#D4A84B] font-bold py-3 px-6 rounded-lg border border-[#D4A84B] transition-colors duration-300 text-center"
+            >
+              Go to Dashboard
+            </Link>
+          </div>
+        </div>
       )}
     </div>
   )

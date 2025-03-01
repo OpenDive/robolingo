@@ -25,7 +25,7 @@ export interface Group {
   lastMessage: string
   time: string
   unread: number
-  ethAmount: string
+  usdcAmount: string
 }
 
 interface ChallengeContextType {
@@ -43,25 +43,29 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [challenges, setChallenges] = useState<Challenge[]>([
     {
       id: 1,
-      title: 'Korean Basics',
-      daysLeft: 83,
-      stake: '0.05 ETH',
-      progress: 7,
-      participants: 8,
+      title: 'Korean in 90 Days',
       language: 'korean',
-      minDailyTime: 30,
-      type: 'no-loss'
+      stake: '50 USDC',
+      duration: 90,
+      dailyMinutes: 30,
+      participants: 8,
+      type: 'no-loss',
+      createdAt: new Date('2023-05-01').toISOString(),
+      daysLeft: 74,
+      progress: 18,
     },
     {
       id: 2,
-      title: 'Japanese for Business',
-      daysLeft: 60,
-      stake: '0.2 ETH',
-      progress: 30,
-      participants: 5,
+      title: 'Japanese Immersion Challenge',
       language: 'japanese',
-      minDailyTime: 45,
-      type: 'hardcore'
+      stake: '200 USDC',
+      duration: 60,
+      dailyMinutes: 45,
+      participants: 5,
+      type: 'hardcore',
+      createdAt: new Date('2023-05-10').toISOString(),
+      daysLeft: 54,
+      progress: 10,
     }
   ])
   
@@ -69,7 +73,8 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [groups, setGroups] = useState<Group[]>([
     {
       id: "korean-gang",
-      name: "Korean Gang",
+      name: "Korean Study Group",
+      description: 'A group dedicated to learning Korean',
       flag: "🇰🇷",
       avatar: "K",
       avatarBg: "bg-purple-500",
@@ -77,11 +82,12 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       lastMessage: "Did you guys see Mark's attempt at saying 안녕하세요?",
       time: "2m ago",
       unread: 3,
-      ethAmount: "0.05 ETH"
+      usdcAmount: "50 USDC"
     },
     {
       id: "samurai-squad",
-      name: "Samurai Squad",
+      name: "Japanese Language Mastery",
+      description: 'Hardcore Japanese learners',
       flag: "🇯🇵",
       avatar: "S",
       avatarBg: "bg-blue-500",
@@ -89,7 +95,7 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       lastMessage: "I learned 20 new kanji today!",
       time: "1h ago",
       unread: 0,
-      ethAmount: "0.2 ETH"
+      usdcAmount: "200 USDC"
     }
   ])
   

@@ -43,7 +43,7 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
         flag: "🇰🇷",
         members: 8,
         languages: ["English", "Korean"],
-        pool: "0.05 ETH x 8 members"
+        pool: "50 USDC x 8 members"
       })
       
       setMessages([
@@ -86,7 +86,7 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
         flag: "🇯🇵",
         members: 5,
         languages: ["English", "Japanese"],
-        pool: "0.2 ETH x 5 members"
+        pool: "200 USDC x 5 members"
       })
       
       setMessages([
@@ -117,7 +117,7 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
         flag: "🇪🇸",
         members: 6,
         languages: ["English", "Spanish"],
-        pool: "0.03 ETH x 6 members"
+        pool: "30 USDC x 6 members"
       })
       
       setMessages([
@@ -126,7 +126,7 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
           sender: "W Bot",
           avatar: "🤖",
           avatarBg: "bg-blueprint-bg",
-          content: "Emma's on a 7-day streak! She's earned a bonus of 0.005 ETH from the group pool.",
+          content: "Emma's on a 7-day streak! She's earned a bonus of 5 USDC from the group pool.",
           timestamp: "10:30 AM"
         },
         {
@@ -180,7 +180,7 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
         flag: flag,
         members: 2, // Default number of members
         languages: ["English", language],
-        pool: "0.05 ETH x 2 members" // Default pool
+        pool: "50 USDC x 2 members" // Default pool
       });
       
       setMessages([
