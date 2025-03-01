@@ -41,6 +41,8 @@ module.exports = {
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
         'spin-slow': 'spin 20s linear infinite',
+        'spin-slow-reverse': 'spin 20s linear infinite reverse',
+        'spin-very-slow': 'spin 40s linear infinite',
         'spin-reverse': 'spin 25s linear infinite reverse',
         'spin-slower': 'spin 30s linear infinite',
         'gear-rotate': 'gear-rotate 15s linear infinite',
@@ -50,15 +52,8 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
         },
-        'gear-rotate': {
-          '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' },
-          '25%': { transform: 'rotate(95deg)' },
-          '50%': { transform: 'rotate(180deg)' },
-          '75%': { transform: 'rotate(275deg)' },
-        }
       }
     },
   },
   plugins: [],
-}
+};

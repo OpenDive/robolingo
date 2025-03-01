@@ -2,13 +2,28 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useWalletContext } from '@/contexts/WalletContext'
+import WalletModal from '@/components/wallet/WalletModal'
 
 export default function Header() {
-  const [isConnected, setIsConnected] = useState(false)
+  const { 
+    status, 
+    formattedAddress, 
+    openModal, 
+    isModalOpen, 
+    closeModal, 
+    connect, 
+    disconnect 
+  } = useWalletContext()
+  
+  const isConnected = status === 'connected'
   
   const handleConnectWallet = () => {
-    setIsConnected(!isConnected)
+    if (isConnected) {
+      disconnect()
+    } else {
+      openModal()
+    }
   }
   
   return (
@@ -68,7 +83,7 @@ export default function Header() {
           </div>
           
           <span className={`font-mono text-sm ${isConnected ? 'text-[#1A1A1A]' : 'text-blueprint-line group-hover:text-[#D4A84B]'} transition-colors duration-300`}>
-            {isConnected ? '0x7E4...F3d9' : 'Connect Wallet'}
+            {isConnected ? formattedAddress : 'Connect Wallet'}
           </span>
           
           {/* Connection indicator */}
@@ -77,6 +92,13 @@ export default function Header() {
           )}
         </button>
       </div>
+      
+      {/* Wallet Modal */}
+      <WalletModal 
+        isOpen={isModalOpen} 
+        onClose={closeModal} 
+        onConnect={connect} 
+      />
     </header>
   )
 }
