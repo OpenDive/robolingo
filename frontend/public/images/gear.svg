@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Gear</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(10.000000, 10.000000)" stroke="#000000" stroke-width="1.5">
+            <circle cx="40" cy="40" r="15"></circle>
+            <path d="M40,0 L40,10 M0,40 L10,40 M40,70 L40,80 M70,40 L80,40" stroke-linecap="round"></path>
+            <path d="M11.7157288,11.7157288 L18.7867966,18.7867966 M11.7157288,68.2842712 L18.7867966,61.2132034 M68.2842712,68.2842712 L61.2132034,61.2132034 M68.2842712,11.7157288 L61.2132034,18.7867966" stroke-linecap="round"></path>
+            <path d="M46,0 L46,8 M34,0 L34,8 M0,46 L8,46 M0,34 L8,34 M46,72 L46,80 M34,72 L34,80 M72,46 L80,46 M72,34 L80,34" stroke-linecap="round"></path>
+            <path d="M17.7573593,5.87867966 L22.7573593,14.1421356 M5.87867966,17.7573593 L14.1421356,22.7573593 M5.87867966,62.2426407 L14.1421356,57.2426407 M17.7573593,74.1213203 L22.7573593,65.8578644 M62.2426407,74.1213203 L57.2426407,65.8578644 M74.1213203,62.2426407 L65.8578644,57.2426407 M74.1213203,17.7573593 L65.8578644,22.7573593 M62.2426407,5.87867966 L57.2426407,14.1421356" stroke-linecap="round"></path>
+        </g>
+    </g>
+</svg>

@@ -78,6 +78,7 @@ export default function ActiveChallenges() {
         {challenges.map(challenge => (
           <ChallengeCard 
             key={challenge.id}
+            id={challenge.id}
             title={challenge.title}
             daysLeft={challenge.daysLeft}
             stake={challenge.stake}
