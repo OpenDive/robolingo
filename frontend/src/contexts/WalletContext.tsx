@@ -3,20 +3,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { WalletInfo, WalletStatus, WalletType, connectWallet, WalletError, formatAddress } from '@/utils/wallet'
 import { useSuiWallet } from '@/components/wallet/SuiWalletAdapter'
+import { ethers } from 'ethers'
 
-interface WalletContextType {
-  connect: (walletType: WalletType) => Promise<void>
-  disconnect: () => void
-  walletInfo: WalletInfo | null
-  status: WalletStatus
-  error: string | null
-  isModalOpen: boolean
+export interface WalletContextType {
+  status: 'connected' | 'disconnected'
+  formattedAddress: string
   openModal: () => void
   closeModal: () => void
-  formattedAddress: string
+  connect: () => void
+  disconnect: () => void
+  isModalOpen: boolean
+  signer: ethers.Signer | null
 }
 
-const WalletContext = createContext<WalletContextType | undefined>(undefined)
+export const WalletContext = createContext<WalletContextType | undefined>(undefined)
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null)
