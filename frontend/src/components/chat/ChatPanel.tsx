@@ -210,6 +210,64 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
       
       setMessages([...messages, newMsg])
       setNewMessage('')
+      
+      // Show typing indicator
+      setMessages(prev => [...prev, {
+        id: -1, // Temporary ID for typing indicator
+        sender: "W Bot",
+        avatar: "🤖",
+        avatarBg: "bg-blueprint-bg",
+        content: "...",
+        timestamp: ""
+      }]);
+      
+      // Generate response from W Bot using Atoma LLM
+      fetch('/api/bot-response', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: newMessage,
+          groupId,
+          language: groupInfo?.languages?.[1] || null
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Remove typing indicator
+        setMessages(prev => prev.filter(msg => msg.id !== -1));
+        
+        // Add the real W bot response
+        const botMsg: Message = {
+          id: messages.length + 2,
+          sender: "W Bot",
+          avatar: "🤖",
+          avatarBg: "bg-blueprint-bg",
+          content: data.success ? data.response : "I'm having trouble connecting right now. Please try again later!",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+        
+        setMessages(prev => [...prev, botMsg]);
+      })
+      .catch(error => {
+        console.error('Error getting bot response:', error);
+        
+        // Remove typing indicator
+        setMessages(prev => prev.filter(msg => msg.id !== -1));
+        
+        // Add fallback response
+        const errorMsg: Message = {
+          id: messages.length + 2,
+          sender: "W Bot",
+          avatar: "🤖",
+          avatarBg: "bg-blueprint-bg",
+          content: "Sorry, I'm having trouble connecting right now. Please try again later!",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+        
+        setMessages(prev => [...prev, errorMsg]);
+      });
     }
   }
   
@@ -325,7 +383,17 @@ export default function ChatPanel({ groupId }: ChatPanelProps) {
                   {message.avatar}
                 </div>
                 <div className="flex-1">
-                  <p className="text-blueprint-line">{message.content}</p>
+                  <p className="text-blueprint-line">
+                    {message.content === "..." ? (
+                      <span className="typing-indicator">
+                        <span className="dot"></span>
+                        <span className="dot"></span>
+                        <span className="dot"></span>
+                      </span>
+                    ) : (
+                      message.content
+                    )}
+                  </p>
                 </div>
                 {message.content.includes('Mark is missing') && (
                   <button className="px-4 py-2 bg-[#D4A84B] text-[#1A1A1A] rounded-full font-mono text-sm hover:bg-[#B38728] transition-colors duration-300">
