@@ -23,7 +23,7 @@ export default function InvitePage() {
         // For now, we'll use mock data
         setChallenge({
           title: "Korean in 90 Days",
-          type: params.code.startsWith('NL') ? 'no-loss' : 'hardcore',
+          type: (params.code as string).startsWith('NL') ? 'no-loss' : 'hardcore',
           stake: "0.05 ETH",
           duration: "90 days",
           minDailyTime: "30 minutes",
