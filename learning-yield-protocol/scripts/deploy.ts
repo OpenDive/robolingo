@@ -1,73 +1,135 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
+import * as hre from "hardhat";
 
 dotenv.config();
 
-// Helper function to calculate transaction fee (similar to their util function)
+// Helper function to calculate transaction fee
 function calculateTransactionFee(receipt: any) {
   const gasUsed = receipt.gasUsed;
   const gasPrice = receipt.gasPrice;
   const transactionFee = gasUsed * gasPrice;
-  return ethers.formatEther(transactionFee);
+  return ethers.formatEther(transactionFee) + " ℏ"; // Add Hedera token symbol
+}
+
+// Helper function to wait for RPC connection
+async function waitForRPC(provider: any, maxAttempts = 5) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      await provider.getNetwork();
+      return true;
+    } catch (error) {
+      console.log(`RPC connection attempt ${i + 1}/${maxAttempts} failed, retrying...`);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between attempts
+    }
+  }
+  return false;
 }
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-  const network = await ethers.provider.getNetwork();
+  // Initialize the operator account and RPC connection like in the example
+  const operatorId = process.env.OPERATOR_ACCOUNT_ID;
+  const operatorKey = process.env.OPERATOR_ACCOUNT_PRIVATE_KEY;
+  const rpcUrl = process.env.RPC_URL;
 
-  console.log("Deploying contracts with account:", deployer.address);
-  console.log("Network:", network.name, "Chain ID:", network.chainId);
+  if (!operatorId || !operatorKey || !rpcUrl) {
+    throw new Error('Must set OPERATOR_ACCOUNT_ID, OPERATOR_ACCOUNT_PRIVATE_KEY, and RPC_URL environment variables');
+  }
 
-  // Check Hedera-specific environment variables if deploying to Hedera
-  if (network.chainId === BigInt(296)) { // Hedera testnet
-    if (!process.env.OPERATOR_ACCOUNT_ID || !process.env.OPERATOR_ACCOUNT_PRIVATE_KEY) {
-      throw new Error("Please set OPERATOR_ACCOUNT_ID and OPERATOR_ACCOUNT_PRIVATE_KEY in .env for Hedera deployment");
-    }
-    console.log("Hedera Account ID:", process.env.OPERATOR_ACCOUNT_ID);
+  console.log("\n🟣 Initializing operator account...");
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  const operatorWallet = new ethers.Wallet(operatorKey, provider);
+  const operatorAddress = operatorWallet.address;
+
+  console.log("Operator account initialized:", operatorAddress);
+  console.log("Hedera Account ID:", operatorId);
+
+  // Validate contract addresses
+  const usdcAddress = process.env.USDC_ADDRESS;
+  const aavePoolAddress = process.env.AAVE_POOL_ADDRESS;
+  const aUsdcAddress = process.env.AUSDC_ADDRESS;
+  const aiAgentAddress = process.env.AI_AGENT_ADDRESS;
+
+  if (!usdcAddress || !aavePoolAddress || !aUsdcAddress || !aiAgentAddress) {
+    throw new Error("Missing required contract addresses in .env");
   }
 
   // Deploy contract
-  console.log("\nDeploying LearningYieldPool contract...");
-  const LearningYieldPool = await ethers.getContractFactory("LearningYieldPool");
-  const learningPool = await LearningYieldPool.deploy(
-    process.env.USDC_ADDRESS!,
-    process.env.AAVE_POOL_ADDRESS!,
-    process.env.AUSDC_ADDRESS!,
-    process.env.AI_AGENT_ADDRESS!
+  console.log("\n🟣 Deploying LearningYieldPool contract...");
+  console.log("Using addresses:");
+  console.log("USDC:", usdcAddress);
+  console.log("Aave Pool:", aavePoolAddress);
+  console.log("aUSDC:", aUsdcAddress);
+  console.log("AI Agent:", aiAgentAddress);
+
+  const artifact = await hre.artifacts.readArtifact("LearningYieldPool");
+  const LearningYieldPool = ethers.ContractFactory.fromSolidity(
+    artifact,
+    operatorWallet
   );
-
-  const deployTx = await learningPool.deploymentTransaction();
-  const deployReceipt = await deployTx?.wait();
   
-  const contractAddress = await learningPool.getAddress();
-  console.log("Contract deployed to:", contractAddress);
+  try {
+    const learningPool = await LearningYieldPool.deploy(
+      usdcAddress,
+      aavePoolAddress,
+      aUsdcAddress,
+      aiAgentAddress,
+      { 
+        gasLimit: 300000, // Use DEFAULT_GAS_LIMIT from .rpcrelay.env
+      }
+    );
 
-  // Log deployment details
-  if (deployReceipt) {
-    console.log("Deployment transaction fee:", calculateTransactionFee(deployReceipt), "ETH");
-  }
-
-  // Generate HashScan URLs based on network
-  if (network.chainId === BigInt(296)) { // Hedera testnet
-    const hashscanContractUrl = `https://hashscan.io/testnet/contract/${contractAddress}`;
-    const hashscanTxUrl = `https://hashscan.io/testnet/transaction/${deployTx?.hash}`;
+    const deployTx = await learningPool.deploymentTransaction();
+    if (!deployTx) throw new Error("No deployment transaction found");
     
-    console.log("\nHashscan URLs:");
+    console.log("\n🟣 Waiting for deployment transaction...");
+    const deployReceipt = await deployTx.wait();
+    if (!deployReceipt) throw new Error("No deployment receipt found");
+
+    const contractAddress = await learningPool.getAddress();
+    console.log("\nContract deployed to:", contractAddress);
+    console.log("Deployment transaction fee:", calculateTransactionFee(deployReceipt));
+
+    // Generate HashScan URLs
+    const hashscanContractUrl = `https://hashscan.io/testnet/contract/${contractAddress}`;
+    const hashscanTxUrl = `https://hashscan.io/testnet/transaction/${deployTx.hash}`;
+    
+    console.log("\n🟣 HashScan URLs:");
     console.log("Contract:", hashscanContractUrl);
     console.log("Deployment Transaction:", hashscanTxUrl);
 
-    // Wait a bit and verify the contract exists on HashScan
-    console.log("\nWaiting for contract to be indexed on HashScan...");
-    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-  }
+    // Wait for contract to be indexed
+    console.log("\n🟣 Waiting for contract to be indexed on HashScan...");
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
-  // Test contract deployment with a read operation
-  try {
-    const owner = await learningPool.owner();
-    console.log("\nContract verification - Owner address:", owner);
-    console.log("✅ Contract deployed and verified successfully");
-  } catch (error) {
-    console.error("❌ Contract deployment verification failed:", error);
+    // Verify deployment with a read operation
+    try {
+      const owner = await learningPool.owner();
+      console.log("\nContract verification - Owner address:", owner);
+      console.log("✅ Contract deployed and verified successfully");
+
+      // Optional: Write a test transaction like in the example
+      console.log("\n🟣 Testing contract with a write operation...");
+      const testTx = await learningPool.createLearningGroup(
+        ethers.parseUnits("100", 6), // 100 USDC
+        86400, // 1 day duration
+        2 // max members
+      );
+      const testReceipt = await testTx.wait();
+      console.log("Test transaction fee:", calculateTransactionFee(testReceipt));
+      console.log("Test transaction hash:", testTx.hash);
+      console.log("Test transaction HashScan URL:");
+      console.log(`https://hashscan.io/testnet/transaction/${testTx.hash}`);
+
+    } catch (error) {
+      console.error("❌ Contract deployment verification failed:", error);
+    }
+  } catch (error: any) {
+    console.error("\n❌ Deployment failed:", error.message);
+    if (error.data) {
+      console.error("Error data:", error.data);
+    }
+    throw error;
   }
 }
 
