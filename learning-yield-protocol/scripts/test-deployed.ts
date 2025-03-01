@@ -3,8 +3,13 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const DEPLOYED_CONTRACT = "0x60E555c1386D001ac2f85Ce69D01f0301fc88dD9";
+// const DEPLOYED_CONTRACT = "0x60E555c1386D001ac2f85Ce69D01f0301fc88dD9";
+const DEPLOYED_CONTRACT = "0xEeBcBd2641DA50D9Ab8a6bC7e3f2Fff191f48e10";
 const USDC_DECIMALS = 6;
+
+async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function main() {
   // Setup connection
@@ -13,17 +18,19 @@ async function main() {
   const operatorWallet = new ethers.Wallet(process.env.OPERATOR_ACCOUNT_PRIVATE_KEY!, provider);
   
   console.log("\n🟣 Connecting to deployed contract...");
+  
+  // Get the full ABI from the artifact
   const artifact = await artifacts.readArtifact("LearningYieldPool");
   
-  // Log the stake function signature from ABI to verify encoding
-  const stakeFunction = artifact.abi.find(item => item.name === "stake");
-  console.log("\nStake function signature:", stakeFunction);
-  
+  // Create contract instance with full ABI
   const learningPool = new ethers.Contract(
-    DEPLOYED_CONTRACT, 
+    DEPLOYED_CONTRACT,
     artifact.abi,
     operatorWallet
   );
+
+  // Log stake function signature for debugging
+  console.log("\nStake function signature:", learningPool.interface.getFunction("stake"));
   
   try {
     // 1. Test Group Creation
@@ -62,12 +69,12 @@ async function main() {
     
     console.log("\nGroup ID:", groupId);
     
-    const groupInfo = await learningPool.learningGroups(groupId);
+    const groupInfo = await learningPool.getGroupInfo(groupId);
     console.log("\nGroup Info:");
     console.log("Creator:", groupInfo[0]);
     console.log("Staking Amount:", ethers.formatUnits(groupInfo[1], USDC_DECIMALS), "USDC");
     console.log("Duration:", Number(groupInfo[4]) / 3600, "hours");
-    console.log("Max Members:", groupInfo[9]);
+    console.log("Max Members:", groupInfo[9], "n");
 
     // 2. Test USDC Approval & Staking
     console.log("\n🟣 Approving USDC spend...");
@@ -93,17 +100,20 @@ async function main() {
     ];
 
     const usdcContract = new ethers.Contract(
-      process.env.USDC_ADDRESS!, // EVM address for token 0.0.5449
+      process.env.USDC_ADDRESS!,
       USDC_ABI,
       operatorWallet
     );
 
     try {
-      // First check if we need to associate the token
+      await delay(2000); // Longer delay before token association check
+      
+      // Check token association
       console.log("\n🟣 Checking token association...");
       try {
         await usdcContract.associate({ gasLimit: 1000000 });
         console.log("Token associated successfully!");
+        await delay(2000); // Add delay after association
       } catch (error: any) {
         if (!error.message.includes("TOKEN_ALREADY_ASSOCIATED_TO_ACCOUNT")) {
           console.log("Token already associated");
@@ -112,17 +122,23 @@ async function main() {
         }
       }
 
-      // Then check balance
+      await delay(2000); // Delay before balance check
       const initialBalance = await usdcContract.balanceOf(operatorWallet.address);
       console.log("\nInitial USDC Balance:", ethers.formatUnits(initialBalance, USDC_DECIMALS), "USDC");
 
-      // Then approve
+      await delay(2000); // Delay before approval
       const approveTx = await usdcContract.approve(
         DEPLOYED_CONTRACT, 
         stakingAmount,
-        { gasLimit: 1000000 }
+        { 
+          gasLimit: 1000000,
+          gasPrice: ethers.parseUnits("350", "gwei") // Match gas price
+        }
       );
-      await approveTx.wait();
+      
+      console.log("Approval transaction sent:", approveTx.hash);
+      await delay(2000); // Delay before getting receipt
+      const approveReceipt = await approveTx.wait();
       console.log("USDC approved! Transaction:", approveTx.hash);
 
     } catch (error: any) {
@@ -137,11 +153,13 @@ async function main() {
     // 3. Test Staking
     console.log("\n🟣 Staking in group...");
     try {
-      // Check allowance first
+      await delay(1000);
+      
       const allowance = await usdcContract.allowance(operatorWallet.address, DEPLOYED_CONTRACT);
       console.log("Current allowance:", ethers.formatUnits(allowance, USDC_DECIMALS), "USDC");
 
-      // Check USDC balance again
+      await delay(1000);
+      
       const balance = await usdcContract.balanceOf(operatorWallet.address);
       console.log("Current USDC Balance:", ethers.formatUnits(balance, USDC_DECIMALS), "USDC");
 
@@ -149,33 +167,52 @@ async function main() {
         throw new Error(`Insufficient USDC balance. Need ${ethers.formatUnits(stakingAmount, USDC_DECIMALS)} USDC but have ${ethers.formatUnits(balance, USDC_DECIMALS)} USDC`);
       }
 
-      // Try staking with proper method encoding
+      await delay(1000);
+
       console.log("Attempting to stake...");
-      
-      // Log the contract interface to verify ABI
-      console.log("\nContract interface for stake:", learningPool.interface.getFunction("stake"));
-      
-      // Encode the function call data
-      const data = learningPool.interface.encodeFunctionData("stake", [groupId]);
-      console.log("\nEncoded function data:", data);
-      
-      // Call stake with proper encoding
+      console.log("Staking in group:", groupId);
+
+      // Debug the contract and function
+      console.log("\nDebug contract info:");
+      console.log("Contract address:", DEPLOYED_CONTRACT);
+      console.log("Contract ABI:", JSON.stringify(artifact.abi.filter(x => x.type === 'function'), null, 2));
+      console.log("Stake function:", learningPool.interface.getFunction("stake"));
+
+      // Call stake directly on the contract
       const stakeTx = await learningPool.stake(
         groupId,
         {
-          gasLimit: 1000000,
+          gasLimit: BigInt(1000000),
           gasPrice: ethers.parseUnits("360", "gwei")
         }
       );
 
-      console.log("Staking transaction sent:", stakeTx.hash);
+      console.log("\nTransaction sent:", stakeTx);
+      
+      await delay(1000);
       const receipt = await stakeTx.wait();
+      
+      if (!receipt) {
+        throw new Error("Failed to get transaction receipt");
+      }
       
       if (receipt.status === 0) {
         throw new Error("Staking transaction failed");
       }
 
       console.log("Staked successfully! Transaction:", stakeTx.hash);
+
+      console.log("\nDebug Events:");
+      for (const event of receipt.logs) {
+        try {
+          const parsed = learningPool.interface.parseLog(event);
+          if (parsed) {
+            console.log(`${parsed.name}:`, parsed.args);
+          }
+        } catch (e) {
+          // Skip unparseable logs
+        }
+      }
 
     } catch (error: any) {
       console.error("Staking failed:", error.message);

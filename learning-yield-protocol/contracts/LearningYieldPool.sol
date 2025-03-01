@@ -60,6 +60,9 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
     event YieldClaimed(uint256 indexed groupId, address user, uint256 amount);
     event YieldDeposited(uint256 indexed groupId, uint256 amount);
     event YieldWithdrawn(uint256 indexed groupId, uint256 amount, uint256 yield);
+    event DebugStakeEntry(uint256 groupId, address sender, uint256 stakingAmount);
+    event DebugStakeCheck(bool groupExists, bool isActive, bool hasStaked, uint256 memberCount, uint256 maxMembers);
+    event DebugStakeTransfer(bool approvalOk, uint256 allowance, uint256 balance);
 
     /**
      * @dev Constructor initializes the contract with USDC, Aave Pool, and AI agent addresses
@@ -110,11 +113,35 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
      * @param _groupId ID of the learning group
      */
     function stake(uint256 _groupId) external nonReentrant {
+        // Debug initial state
+        emit DebugStakeEntry(_groupId, msg.sender, learningGroups[_groupId].stakingAmount);
+
+        // Check if group exists and is valid
+        require(_groupId < groupCounter, "Group does not exist");
         LearningGroup storage group = learningGroups[_groupId];
+        
+        // Debug group checks
+        emit DebugStakeCheck(
+            _groupId < groupCounter,
+            group.isActive,
+            group.users[msg.sender].hasStaked,
+            group.memberCount,
+            group.maxMembers
+        );
+
         require(group.isActive, "Group is not active");
         require(!group.isCompleted, "Group is completed");
         require(!group.users[msg.sender].hasStaked, "Already staked");
         require(group.memberCount < group.maxMembers, "Group is full");
+
+        // Debug transfer checks
+        uint256 allowance = usdc.allowance(msg.sender, address(this));
+        uint256 balance = usdc.balanceOf(msg.sender);
+        emit DebugStakeTransfer(
+            allowance >= group.stakingAmount,
+            allowance,
+            balance
+        );
 
         // Transfer USDC from user to contract
         usdc.transferFrom(msg.sender, address(this), group.stakingAmount);

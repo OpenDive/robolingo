@@ -115,44 +115,11 @@ struct UserInfo {
 
 ## Sample Transactions
 ```
+
+
 🟣 Connecting to deployed contract...
 
-Stake function signature: {
-  inputs: [ { internalType: 'uint256', name: '_groupId', type: 'uint256' } ],
-  name: 'stake',
-  outputs: [],
-  stateMutability: 'nonpayable',
-  type: 'function'
-}
-
-🟣 Creating a learning group...
-Group created! Transaction: 0x9b045f8fc49d02429aadff8fa66d1779bff5c282e3b8ffd773f704c619c7d927
-
-Group ID: 21
-
-Group Info:
-Creator: 0xE830C5cC74f591005AF24DEFafa6AE1f7Ffb47a9
-Staking Amount: 0.1 USDC
-Duration: 24 hours
-Max Members: 3n
-
-🟣 Approving USDC spend...
-USDC Address: 0x0000000000000000000000000000000000001549
-
-🟣 Checking token association...
-Token associated successfully!
-
-Initial USDC Balance: 1.0 USDC
-USDC approved! Transaction: 0x57b5e3cc89b19ec7f4706ae10667dd964d9f551b7dee207a1ed55628df8636a7
-
-Contract USDC Balance: 0.0 USDC
-
-🟣 Staking in group...
-Current allowance: 0.1 USDC
-Current USDC Balance: 1.0 USDC
-Attempting to stake...
-
-Contract interface for stake: FunctionFragment {
+Stake function signature: FunctionFragment {
   type: 'function',
   inputs: [
     ParamType {
@@ -172,6 +139,61 @@ Contract interface for stake: FunctionFragment {
   payable: false,
   gas: null
 }
+
+🟣 Creating a learning group...
+
+
+
+
+Group created! Transaction: 0x5eaee6aa52511258136ddbd9274e307030ef65fc7f9419a562057859ab14ca3f
+
+Group ID: 1
+
+Group Info:
+Creator: 0xE830C5cC74f591005AF24DEFafa6AE1f7Ffb47a9
+Staking Amount: 0.1 USDC
+Duration: 24 hours
+Max Members: 3n n
+
+🟣 Approving USDC spend...
+USDC Address: 0x0000000000000000000000000000000000001549
+
+🟣 Checking token association...
+Token associated successfully!
+
+Initial USDC Balance: 1.0 USDC
+Approval transaction sent: 0x2124f2431de1c6f150d90161027c763cd9f3970ed7f71ef8d85fcd15a402594f
+USDC approved! Transaction: 0x2124f2431de1c6f150d90161027c763cd9f3970ed7f71ef8d85fcd15a402594f
+
+Contract USDC Balance: 0.0 USDC
+
+🟣 Staking in group...
+Current allowance: 0.1 USDC
+Current USDC Balance: 1.0 USDC
+Attempting to stake...
+Staking in group: 1
+
+Debug contract info:
+Contract address: 0xEeBcBd2641DA50D9Ab8a6bC7e3f2Fff191f48e10
+
+Staked successfully! Transaction: 0x26ee21ad0a058b9e35b1b4d204df45a969f7db0956ee5436d97761461c96cb31
+
+Debug Events:
+DebugStakeEntry: Result(3) [ 1n, '0xE830C5cC74f591005AF24DEFafa6AE1f7Ffb47a9', 100000n ]
+DebugStakeCheck: Result(5) [ true, true, false, 0n, 3n ]
+DebugStakeTransfer: Result(3) [ true, 100000n, 1000000n ]
+UserStaked: Result(2) [ 1n, '0xE830C5cC74f591005AF24DEFafa6AE1f7Ffb47a9' ]
+
+🟣 Updating progress...
+Progress updated! Transaction: 0x84ac18b0137acd599d0dec55ea2506489d05e2e9c6d568ef201c67bead987bc5
+
+User Info:
+Has Staked: true
+Progress: 75n %
+Has Claimed Yield: false
+Yield Allocation: 0.0 USDC
+
+✅ All tests completed successfully!
 ```
 
 ## Considerations and TODOs
