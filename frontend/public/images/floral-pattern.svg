@@ -1,0 +1,41 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background gear-like pattern -->
+  <g fill="none" stroke="#000000" stroke-width="1" filter="url(#glow)">
+    <!-- Stem/Shaft -->
+    <path d="M 100 200 L 100 100" />
+    
+    <!-- Mechanical Petals/Gear teeth -->
+    <path d="M 100 100 L 130 70 L 140 80 L 130 110 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 140 40 L 150 50 L 110 70 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 160 100 L 150 110 L 130 90 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 140 160 L 130 150 L 130 130 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 40 160 L 50 150 L 70 130 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 40 100 L 50 90 L 70 90 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 40 40 L 50 50 L 70 70 Z" stroke-opacity="0.9" />
+    <path d="M 100 100 L 60 80 L 70 70 L 70 110 Z" stroke-opacity="0.9" />
+    
+    <!-- Center gear hub -->
+    <circle cx="100" cy="100" r="15" stroke-width="1.5" />
+    <circle cx="100" cy="100" r="8" stroke-width="1" />
+    <circle cx="100" cy="100" r="3" stroke-width="0.8" />
+    
+    <!-- Technical drawing measurement lines -->
+    <path d="M 0 50 L 200 50" stroke-opacity="0.3" stroke-dasharray="4,2" />
+    <path d="M 0 100 L 200 100" stroke-opacity="0.3" stroke-dasharray="4,2" />
+    <path d="M 0 150 L 200 150" stroke-opacity="0.3" stroke-dasharray="4,2" />
+    <path d="M 50 0 L 50 200" stroke-opacity="0.3" stroke-dasharray="4,2" />
+    <path d="M 100 0 L 100 200" stroke-opacity="0.3" stroke-dasharray="4,2" />
+    <path d="M 150 0 L 150 200" stroke-opacity="0.3" stroke-dasharray="4,2" />
+    
+    <!-- Measurement markers -->
+    <text x="105" y="15" font-family="monospace" font-size="8" fill="#000000">100.0</text>
+    <text x="155" y="105" font-family="monospace" font-size="8" fill="#000000">50.0</text>
+  </g>
+</svg>

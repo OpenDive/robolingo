@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --foreground-rgb: 26, 26, 26;
+  --background-rgb: 245, 240, 225;
+  --grid-color: 229, 223, 208;
+  --accent-color: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  background-image: url('/images/blueprint-grid.svg');
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background-image: url('/images/floral-pattern.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.15;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 150px;
+  height: 150px;
+  background-image: url('/images/floral-pattern.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.15;
+  transform: rotate(180deg);
+  z-index: -1;
+}
+
+@layer components {
+  .story-avatar {
+    @apply w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold border-2;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .story-avatar::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0, 0, 0, 0.2);
+    animation: spin 20s linear infinite;
+  }
+  
+  .story-avatar-active {
+    @apply border-4;
+    border-color: #D4A84B; /* Using the gold/amber accent color */
+    box-shadow: 0 0 0 2px rgba(212, 168, 75, 0.3); /* Additional glow */
+  }
+  
+  .story-avatar-active::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(212, 168, 75, 0.7); /* Gold/amber with transparency - thicker and more opaque */
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 0.7; }
+  }
+  
+  .nav-icon {
+    @apply flex flex-col items-center justify-center text-gray-600;
+  }
+  
+  .nav-icon-active {
+    @apply text-blueprint-line;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .challenge-card {
+    @apply bg-blueprint-bg border-1 border-blueprint-line rounded-xl p-4;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .challenge-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2), transparent);
+  }
+  
+  .challenge-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, rgba(245, 240, 225, 0.8), transparent);
+    z-index: -1;
+  }
+  
+  .btn-primary {
+    @apply bg-transparent text-blueprint-line font-semibold py-2 px-6 rounded-full border-1 border-blueprint-line;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    @apply bg-blueprint-line text-blueprint-bg;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .blueprint-heading {
+    @apply font-mono text-blueprint-line font-bold relative;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .blueprint-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3), transparent);
+  }
+  
+  .progress-bar {
+    @apply bg-blueprint-grid rounded-full h-2 relative overflow-hidden;
+  }
+  
+  .progress-bar-fill {
+    @apply bg-blueprint-line h-2 rounded-full;
+    opacity: 0.7;
+  }
+  
+  .blueprint-icon {
+    @apply text-blueprint-line;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.1));
+  }
+  
+  .floral-decoration {
+    position: relative;
+  }
+  
+  .floral-decoration::before {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-image: url('/images/floral-pattern.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.2;
+    z-index: 0;
+  }
+  
+  /* Story Avatars */
+  .story-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .story-avatar-active {
+    border-color: #D4A84B !important; /* Gold/amber accent color */
+    box-shadow: 0 0 10px rgba(212, 168, 75, 0.5); /* Glow effect */
+    animation: pulse 2s infinite; /* Pulsing animation */
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(212, 168, 75, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(212, 168, 75, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(212, 168, 75, 0);
+    }
+  }
+  
+  /* Chat Styles */
+  .chat-message {
+    max-width: 80%;
+    margin-bottom: 10px;
+  }
+  
+  .chat-message-content {
+    padding: 10px 15px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .chat-message-sender {
+    background-color: var(--blueprint-bg);
+    border: 1px solid var(--blueprint-line);
+  }
+  
+  .chat-message-receiver {
+    background-color: rgba(212, 168, 75, 0.1);
+    border: 1px solid rgba(212, 168, 75, 0.3);
+  }
+  
+  .chat-input {
+    background-color: var(--blueprint-bg);
+    border: 1px solid var(--blueprint-line);
+    border-radius: 24px;
+    padding: 10px 15px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .chat-input:focus {
+    border-color: #D4A84B;
+  }
+}
