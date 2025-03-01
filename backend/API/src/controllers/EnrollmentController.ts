@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
-import { EnrollmentService, CourseService } from '../services';
+import { EnrollmentService, CourseService, UserService } from '../services';
 import { UserRole } from '../models/User';
 import { EnrollmentStatus } from '../models/Enrollment';
+import { BlockchainService } from '../services/BlockchainService';
 
 /**
  * Controller for enrollment-related API endpoints
@@ -11,19 +12,27 @@ import { EnrollmentStatus } from '../models/Enrollment';
 class EnrollmentController extends BaseController<any> {
   private enrollmentService: EnrollmentService;
   private courseService: CourseService;
+  private blockchainService: BlockchainService;
+  private userService: UserService;
 
   /**
    * Creates a controller with the required services
    * @param enrollmentService - Service for enrollment operations
    * @param courseService - Service for course operations
+   * @param blockchainService - Service for blockchain operations
+   * @param userService - Service for user operations
    */
   constructor(
     enrollmentService: EnrollmentService,
-    courseService: CourseService
+    courseService: CourseService,
+    blockchainService: BlockchainService,
+    userService: UserService
   ) {
     super(enrollmentService);
+    this.userService = userService;
     this.enrollmentService = enrollmentService;
     this.courseService = courseService;
+    this.blockchainService = blockchainService;
   }
 
   /**
@@ -418,6 +427,79 @@ class EnrollmentController extends BaseController<any> {
         message: 'Expired enrollments processed',
         count
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Deposit stake for enrollment
+   */
+  depositStake = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.id;
+      const courseId = req.params.courseId;
+      
+      if (!userId) {
+        res.status(401).json({ message: 'Authentication required' });
+        return;
+      }
+      
+      const user = await this.userService.findById(userId);
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+      
+      const enrollment = await this.enrollmentService.getUserEnrollment(userId, courseId);
+      
+      if (!enrollment) {
+        res.status(404).json({ message: 'Enrollment not found' });
+        return;
+      }
+      
+      const txHash = await this.blockchainService.depositStake(user, enrollment);
+      
+      enrollment.transactionHash = txHash;
+      await enrollment.save();
+      
+      res.json({ transactionHash: txHash });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Generate invite link
+   */
+  generateInviteLink = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const courseId = req.params.courseId;
+      const inviteCode = await this.blockchainService.generateInviteCode(courseId);
+      const inviteLink = `${req.headers.origin}/invite/${inviteCode}`;
+      
+      res.json({ inviteCode, inviteLink });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Verify challenge completion
+   */
+  verifyCompletion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const enrollmentId = req.params.id;
+      const enrollment = await this.enrollmentService.findById(enrollmentId);
+      
+      if (!enrollment) {
+        res.status(404).json({ message: 'Enrollment not found' });
+        return;
+      }
+      
+      const isValid = await this.blockchainService.verifyChallengeCompletion(enrollment);
+      
+      res.json({ isValid });
     } catch (error) {
       next(error);
     }

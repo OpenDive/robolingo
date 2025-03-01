@@ -38,13 +38,14 @@ import {
     averageRating?: number;
     ratingCount?: number;
     enrollmentCount?: number;
+    challengeType: 'no-loss' | 'hardcore';
     createdAt: Date;
     updatedAt: Date;
   }
   
   // Attributes for Course creation (optional id, timestamps, and metrics)
   interface CourseCreationAttributes extends Optional<CourseAttributes, 
-    'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'isPublished' | 'averageRating' | 'ratingCount' | 'enrollmentCount'> {}
+    'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'isPublished' | 'averageRating' | 'ratingCount' | 'enrollmentCount' | 'challengeType'> {}
   
   /**
    * Course model representing a language course
@@ -66,6 +67,7 @@ import {
     public averageRating!: number | undefined;
     public ratingCount!: number | undefined;
     public enrollmentCount!: number | undefined;
+    public challengeType!: 'no-loss' | 'hardcore';
   
     // Timestamps
     public readonly createdAt!: Date;
@@ -196,6 +198,11 @@ import {
         type: DataTypes.INTEGER,
         allowNull: true,
         defaultValue: 0,
+      },
+      challengeType: {
+        type: DataTypes.ENUM('no-loss', 'hardcore'),
+        allowNull: false,
+        defaultValue: 'no-loss'
       },
       createdAt: {
         type: DataTypes.DATE,

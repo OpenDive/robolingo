@@ -4,10 +4,12 @@ import {
     Optional, 
     HasManyGetAssociationsMixin,
     HasManyAddAssociationMixin,
-    HasManyCreateAssociationMixin
+    HasManyCreateAssociationMixin,
+    BelongsTo
   } from 'sequelize';
   import sequelize from '../config/database';
   import bcrypt from 'bcrypt';
+  import { Challenge } from './Challenge';
   
   // Roles enum for user types
   export enum UserRole {
@@ -30,10 +32,18 @@ import {
     lastLogin?: Date;
     createdAt: Date;
     updatedAt: Date;
+    walletAddress: string;
+    friends: string[];
+    currentChallengeId?: string;
+    dailyProgress: Record<string, number>;
+    streak: number;
   }
   
   // Attributes for User creation (optional id, createdAt, updatedAt)
-  interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'isActive'> {}
+  interface UserCreationAttributes extends Optional<UserAttributes, 
+    'id' | 'createdAt' | 'updatedAt' | 'isActive' | 
+    'email' | 'password' | 'firstName' | 'lastName' | 'role'
+  > {}
   
   /**
    * User model for storing user account information
@@ -50,6 +60,11 @@ import {
     public profileImage!: string | undefined;
     public isActive!: boolean;
     public lastLogin!: Date | undefined;
+    public walletAddress!: string;
+    public friends!: string[];
+    public dailyProgress!: Record<string, number>;
+    public streak!: number;
+    public currentChallengeId?: string;
   
     // Timestamps
     public readonly createdAt!: Date;
@@ -59,6 +74,8 @@ import {
     public getEnrollments!: HasManyGetAssociationsMixin<any>;
     public addEnrollment!: HasManyAddAssociationMixin<any, string>;
     public createEnrollment!: HasManyCreateAssociationMixin<any>;
+  
+    public currentChallenge?: Challenge;
   
     /**
      * Validates a plaintext password against the user's stored hash
@@ -137,6 +154,34 @@ import {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      walletAddress: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEthereumAddress(value: string) {
+            if (!/^0x[a-fA-F0-9]{40}$/.test(value)) {
+              throw new Error('Invalid Ethereum address');
+            }
+          }
+        }
+      },
+      friends: {
+        type: DataTypes.ARRAY(DataTypes.UUID),
+        defaultValue: []
+      },
+      currentChallengeId: {
+        type: DataTypes.UUID,
+        allowNull: true
+      },
+      dailyProgress: {
+        type: DataTypes.JSONB,
+        defaultValue: {}
+      },
+      streak: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -169,5 +214,8 @@ import {
       },
     }
   );
+  
+  Challenge.hasOne(User, { foreignKey: 'currentChallengeId' });
+  User.belongsTo(Challenge, { foreignKey: 'currentChallengeId' });
   
   export default User;
