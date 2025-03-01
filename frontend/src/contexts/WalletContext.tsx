@@ -152,6 +152,34 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [])
   
+  // Set up event listeners for MetaMask
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.ethereum && walletInfo?.type === 'metamask') {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          // MetaMask is locked or the user has not connected any accounts
+          disconnect()
+        } else if (accounts[0] !== walletInfo?.address) {
+          // Account was changed, update the wallet info
+          connect('metamask')
+        }
+      }
+      
+      const handleChainChanged = (_chainId: string) => {
+        // Chain was changed, refresh the page
+        window.location.reload()
+      }
+      
+      window.ethereum.on('accountsChanged', handleAccountsChanged)
+      window.ethereum.on('chainChanged', handleChainChanged)
+      
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
+        window.ethereum.removeListener('chainChanged', handleChainChanged)
+      }
+    }
+  }, [walletInfo])
+  
   // Modal handlers
   const openModal = () => setIsModalOpen(true)
   const closeModal = () => setIsModalOpen(false)

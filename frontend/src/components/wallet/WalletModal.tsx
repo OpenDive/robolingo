@@ -64,12 +64,15 @@ export default function WalletModal({ isOpen, onClose, onConnect }: WalletModalP
             </div>
             
             <div className="space-y-4">
-              {/* Metamask Option */}
+              {/* MetaMask with Hedera Option */}
               <button
                 onClick={() => onConnect('metamask')}
                 className="w-full flex items-center justify-between p-4 border border-[#333333] hover:border-[#D4A84B] rounded-lg bg-[#2A2A2A] hover:bg-[#2A2A2A]/80 group transition-all duration-300 relative overflow-hidden"
               >
-                <h4 className="text-white text-lg font-semibold group-hover:text-[#D4A84B] transition-colors">MetaMask</h4>
+                <div className="flex flex-col items-start">
+                  <h4 className="text-white text-lg font-semibold group-hover:text-[#D4A84B] transition-colors">MetaMask</h4>
+                  <span className="text-[#C0C0C0] text-sm">Connect to Hedera</span>
+                </div>
                 <div className="h-10 w-10 flex items-center justify-center">
                   <Image src="/images/metamask.png" alt="Metamask Logo" width={40} height={40} />
                 </div>

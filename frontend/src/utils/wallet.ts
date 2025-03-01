@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { switchToHederaNetwork, hederaTestnetConfig } from './hedera';
 
 // Wallet connection type
 export type WalletType = 'metamask' | 'sui';
@@ -25,19 +26,30 @@ export class WalletError extends Error {
   }
 }
 
-// Function to connect to MetaMask
+// Function to connect to MetaMask with Hedera support
 export const connectMetaMask = async (): Promise<WalletInfo> => {
   if (typeof window === 'undefined' || !window.ethereum) {
     throw new WalletError('MetaMask not installed', 'METAMASK_NOT_INSTALLED');
   }
 
   try {
+    // Switch to Hedera network first
+    const networkSwitched = await switchToHederaNetwork(window.ethereum);
+    if (!networkSwitched) {
+      throw new WalletError('Failed to switch to Hedera network', 'NETWORK_SWITCH_FAILED');
+    }
+
     // Request account access
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const address = accounts[0];
 
     // Get chain ID
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    
+    // Verify we're on Hedera network
+    if (chainId !== hederaTestnetConfig.chainId) {
+      throw new WalletError('Please connect to Hedera network', 'WRONG_NETWORK');
+    }
 
     return {
       address,

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hashgraph/sdk": "^2.59.0",
     "@mysten/dapp-kit": "^0.14.50",
     "@mysten/sui": "^1.21.2",
     "@mysten/sui.js": "^0.54.1",
