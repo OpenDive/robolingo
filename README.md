@@ -8,7 +8,8 @@ A fun **Yield-to-Learn** socialfi no-loss platform, where users incentivize lear
   - [Overview](#overview)
   - [Core Components](#core-components)
   - [Usage Flow](#usage-flow)
-  - [Considerations and TODOs](#considerations-and-todos)
+  - [Sample Transactions](#sample-transactions)
+- [Considerations and TODOs](#considerations-and-todos)
 
 ## Tech Stack
 - Walrus
@@ -112,7 +113,68 @@ struct UserInfo {
 4. Upon completion, yield is distributed
 5. Users claim yield proportional to progress
 
-### Considerations and TODOs
+## Sample Transactions
+```
+🟣 Connecting to deployed contract...
+
+Stake function signature: {
+  inputs: [ { internalType: 'uint256', name: '_groupId', type: 'uint256' } ],
+  name: 'stake',
+  outputs: [],
+  stateMutability: 'nonpayable',
+  type: 'function'
+}
+
+🟣 Creating a learning group...
+Group created! Transaction: 0x9b045f8fc49d02429aadff8fa66d1779bff5c282e3b8ffd773f704c619c7d927
+
+Group ID: 21
+
+Group Info:
+Creator: 0xE830C5cC74f591005AF24DEFafa6AE1f7Ffb47a9
+Staking Amount: 0.1 USDC
+Duration: 24 hours
+Max Members: 3n
+
+🟣 Approving USDC spend...
+USDC Address: 0x0000000000000000000000000000000000001549
+
+🟣 Checking token association...
+Token associated successfully!
+
+Initial USDC Balance: 1.0 USDC
+USDC approved! Transaction: 0x57b5e3cc89b19ec7f4706ae10667dd964d9f551b7dee207a1ed55628df8636a7
+
+Contract USDC Balance: 0.0 USDC
+
+🟣 Staking in group...
+Current allowance: 0.1 USDC
+Current USDC Balance: 1.0 USDC
+Attempting to stake...
+
+Contract interface for stake: FunctionFragment {
+  type: 'function',
+  inputs: [
+    ParamType {
+      name: '_groupId',
+      type: 'uint256',
+      baseType: 'uint256',
+      indexed: undefined,
+      components: null,
+      arrayLength: null,
+      arrayChildren: null
+    }
+  ],
+  name: 'stake',
+  constant: false,
+  outputs: [],
+  stateMutability: 'nonpayable',
+  payable: false,
+  gas: null
+}
+```
+
+## Considerations and TODOs
 
 - Only AI agent can update progress
 - Reentrancy protection on financial operations
