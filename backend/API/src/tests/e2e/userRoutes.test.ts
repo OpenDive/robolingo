@@ -1,12 +1,17 @@
 import request from 'supertest';
 import app from '../../app';
-import { setupTestDB, clearTestDB } from '../utils';
+import { setupTestDB, clearTestDB, createTestUser } from '../utils';
 import { describe, it, beforeAll, afterAll } from '@jest/globals';
 import expect from 'expect';
 
 describe('User Routes', () => {
+  // Test user
+  let testUser: any;
+
   beforeAll(async () => {
     await setupTestDB();
+    // Create a test user
+    testUser = await createTestUser();
   });
 
   afterAll(async () => {

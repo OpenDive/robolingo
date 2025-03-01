@@ -88,18 +88,22 @@ async function initializeApp() {
       logger.info('Database synced successfully');
     }
     
-    // Start the server
-    const PORT = config.port;
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-    });
+    return app;
   } catch (error) {
     logger.error('Failed to initialize application:', error);
     process.exit(1);
   }
 }
 
-// Start application
-initializeApp();
+// Start the server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  initializeApp().then(app => {
+    const PORT = config.port;
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
+  });
+}
 
+export { initializeApp };
 export default app;

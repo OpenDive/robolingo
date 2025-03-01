@@ -19,42 +19,29 @@ interface Group {
 export default function GroupList() {
   const { groups } = useChallengeContext();
 
-  // Sample groups data
-  const sampleGroups: Group[] = [
-    {
-      id: "korean-gang",
-      name: "Korean Gang 🇰🇷",
-      avatar: "K",
-      avatarBg: "bg-purple-500",
-      members: 8,
-      lastMessage: "Did you guys see Mark's attempt at saying 안녕하세요?",
-      time: "2m ago",
-      unread: 3,
-      usdcAmount: "50 USDC"
-    },
-    {
-      id: "samurai-squad",
-      name: "Samurai Squad 🇯🇵",
-      avatar: "S",
-      avatarBg: "bg-blue-500",
-      members: 5,
-      lastMessage: "I'll complete today's lesson after dinner",
-      time: "1h ago",
-      unread: 0,
-      usdcAmount: "200 USDC"
-    },
-    {
-      id: "spanish-fiesta",
-      name: "Spanish Fiesta 🇪🇸",
-      avatar: "S",
-      avatarBg: "bg-green-500",
-      members: 6,
-      lastMessage: "[AI] Emma's on a 7-day streak...",
-      time: "3h ago",
-      unread: 12,
-      usdcAmount: "30 USDC"
-    }
-  ];
+  // If there are no groups, we'll show a message
+  if (groups.length === 0) {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold blueprint-heading">Your Groups</h2>
+          <Link href="/chat" className="text-[#D4A84B] font-mono text-sm hover:text-[#B38728] transition-colors duration-300 flex items-center">
+            View All
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+        
+        <div className="bg-blueprint-bg border border-blueprint-line rounded-xl p-6 text-center">
+          <p className="text-gray-500 mb-4">You haven't joined any groups yet</p>
+          <Link href="/explore" className="inline-block text-[#D4A84B] hover:underline">
+            Find challenges to join
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -69,7 +56,7 @@ export default function GroupList() {
       </div>
       
       <div className="space-y-3">
-        {sampleGroups.map((group) => (
+        {groups.map((group) => (
           <Link 
             key={group.id} 
             href={`/chat?group=${group.id}`}
@@ -89,7 +76,7 @@ export default function GroupList() {
               <div className="flex items-center">
                 <div className={`w-12 h-12 ${group.avatarBg} rounded-full flex items-center justify-center text-white font-bold mr-3 relative`}>
                   {group.avatar}
-                  {group.unread && (
+                  {group.unread && group.unread > 0 && (
                     <span className="absolute -top-1 -right-1 bg-[#D4A84B] text-[#1A1A1A] text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       {group.unread}
                     </span>
