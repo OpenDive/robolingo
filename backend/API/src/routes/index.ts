@@ -5,6 +5,8 @@ import lectureRoutes from './LectureRoutes';
 import quizRoutes from './QuizRoutes';
 import enrollmentRoutes from './EnrollmentRoutes';
 import progressRoutes from './ProgressRoutes';
+import challengeRoutes from './ChallengeRoutes';
+import groupRoutes from './GroupRoutes';
 
 /**
  * Main router that combines all route modules
@@ -19,6 +21,8 @@ router.use('/lectures', lectureRoutes);
 router.use('/quizzes', quizRoutes);
 router.use('/enrollments', enrollmentRoutes);
 router.use('/progress', progressRoutes);
+router.use('/challenges', challengeRoutes);
+router.use('/groups', groupRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

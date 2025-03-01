@@ -1,3 +1,4 @@
+// Just export model classes
 export { default as User } from './User.model';
 export { default as Course } from './Course.model';
 export { default as Challenge } from './Challenge.model';

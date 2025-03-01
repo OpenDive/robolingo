@@ -2,6 +2,7 @@ import { setupTestDB, clearTestDB, getTestDB } from '../utils';
 import User, { UserRole } from '../../models/User.model';
 import { describe, it, beforeAll, afterAll } from '@jest/globals';
 import expect from 'expect';
+import { createTestUser } from '../utils';
 
 describe('User Model', () => {
   beforeAll(async () => {
@@ -55,6 +56,15 @@ describe('User Model', () => {
     // Should be able to verify password
     const isMatch = await user.comparePassword('Password123!');
     expect(isMatch).toBe(true);
+  });
+
+  it('should support wallet-based authentication', async () => {
+    const walletAddress = '0x1234567890abcdef1234567890abcdef12345678';
+    
+    const user = await createTestUser({ walletAddress });
+    
+    expect(user).toBeDefined();
+    expect(user.walletAddress).toBe(walletAddress);
   });
 
   // Add more tests as needed

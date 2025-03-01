@@ -6,7 +6,8 @@ config.db = {
   port: 0,
   name: 'test',
   user: 'test',
-  password: 'test'
+  password: 'test',
+  dialect: 'sqlite'
 };
 
 config.logLevel = 'silent'; 
