@@ -75,9 +75,23 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
     addGroup({
       id: challenge.id,
       name: challenge.title,
-      description: `${challenge.language} learning group`,
-      participants: participants.filter(p => p.trim() !== '').length + 1,
-      usdcAmount: `${stake} USDC`
+      flag: language === 'japanese' ? '🇯🇵' : 
+            language === 'spanish' ? '🇪🇸' : 
+            language === 'french' ? '🇫🇷' : 
+            language === 'german' ? '🇩🇪' : 
+            language === 'italian' ? '🇮🇹' : 
+            language === 'portuguese' ? '🇵🇹' : 
+            language === 'russian' ? '🇷🇺' : 
+            language === 'korean' ? '🇰🇷' : 
+            language === 'chinese' ? '🇨🇳' : '🌍',
+      avatar: language.charAt(0).toUpperCase(),
+      avatarBg: `bg-${['blue', 'green', 'purple', 'red', 'yellow'][Math.floor(Math.random() * 5)]}-500`,
+      members: participants.filter(p => p.trim() !== '').length + 1,
+      lastMessage: "Group created! Let's start learning together!",
+      time: "Just now",
+      unread: 0,
+      usdcAmount: `${stake} USDC`,
+      description: `${language.charAt(0).toUpperCase() + language.slice(1)} learning group`
     })
     
     // Show success screen
@@ -113,7 +127,7 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
               <div
                 className={`cursor-pointer p-4 rounded-lg border transition-all duration-300 flex flex-col ${
                   challengeType === 'no-loss' 
-                    ? 'border-[#D4A84B] bg-[#2A2A2A]' 
+                    ? 'border-[#D4A84B] bg-[rgba(212,168,75,0.15)]' 
                     : 'border-blueprint-line bg-blueprint-bg hover:border-[#D4A84B]'
                 }`}
                 onClick={() => setChallengeType('no-loss')}
@@ -126,13 +140,13 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
                     {challengeType === 'no-loss' && <FiCheck className="text-black" />}
                   </div>
                 </div>
-                <p className="text-xs mt-1 text-gray-500">Get your stake back regardless of completion</p>
+                <p className="text-xs mt-1 text-gray-400">Get your stake back regardless of completion</p>
               </div>
               
               <div
                 className={`cursor-pointer p-4 rounded-lg border transition-all duration-300 flex flex-col ${
                   challengeType === 'hardcore' 
-                    ? 'border-[#D4A84B] bg-[#2A2A2A]' 
+                    ? 'border-[#D4A84B] bg-[rgba(212,168,75,0.15)]' 
                     : 'border-blueprint-line bg-blueprint-bg hover:border-[#D4A84B]'
                 }`}
                 onClick={() => setChallengeType('hardcore')}
@@ -145,7 +159,7 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
                     {challengeType === 'hardcore' && <FiCheck className="text-black" />}
                   </div>
                 </div>
-                <p className="text-xs mt-1 text-gray-500">Lose your stake if you don't meet requirements</p>
+                <p className="text-xs mt-1 text-gray-400">Lose your stake if you don't meet requirements</p>
               </div>
             </div>
           </div>
@@ -350,10 +364,10 @@ export default function CreateChallengeForm({ onComplete }: CreateChallengeFormP
           
           <div className="mt-8">
             <Link
-              href="/dashboard"
+              href="/"
               className="block w-full bg-[#2A2A2A] hover:bg-[#3A3A3A] text-[#D4A84B] font-bold py-3 px-6 rounded-lg border border-[#D4A84B] transition-colors duration-300 text-center"
             >
-              Go to Dashboard
+              Go to Home
             </Link>
           </div>
         </div>
