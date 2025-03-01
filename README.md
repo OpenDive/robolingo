@@ -18,8 +18,8 @@ A fun **Yield-to-Learn** socialfi no-loss platform, where users incentivize lear
 ## Smart Contracts
 The smart contract represents a socialfie (yield-to-learn) protocol that incentivizes learning through yield farming. Users join learning groups, stake USDC, and earn yield based on their learning progress.
 
-[LearningYieldPool.sol](learning-yield-protocol/contracts/LearningYieldPool.sol)
-[HashScan Contract Tx](https://hashscan.io/testnet/transaction/0xe4f229aad91afddb1eda5f8b83d0eaf5fe9e147af16adc777abd9dc45ab621cc)
+[LearningYieldPool.sol](learning-yield-protocol/contracts/LearningYieldPool.sol)   
+[HashScan Contract TX](https://hashscan.io/testnet/transaction/0xe4f229aad91afddb1eda5f8b83d0eaf5fe9e147af16adc777abd9dc45ab621cc)
 
 ### Overview
 
