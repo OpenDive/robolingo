@@ -19,22 +19,30 @@ const logger = winston.createLogger({
   ]
 });
 
-// Create Sequelize instance with PostgreSQL configuration
-const sequelize = new Sequelize({
-  dialect: 'postgres',
-  host: config.db.host,
-  port: config.db.port,
-  database: config.db.name,
-  username: config.db.user,
-  password: config.db.password,
-  logging: (msg) => logger.debug(msg),
-  pool: {
-    max: 10,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
+// Modify the Sequelize configuration
+const sequelize = new Sequelize(
+  process.env.NODE_ENV === 'test' ? 
+  {
+    dialect: 'sqlite',
+    storage: ':memory:',
+    logging: false
+  } : 
+  {
+    dialect: 'postgres',
+    host: config.db.host,
+    port: config.db.port,
+    database: config.db.name,
+    username: config.db.user,
+    password: config.db.password,
+    logging: (msg) => logger.debug(msg),
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   }
-});
+);
 
 // Test database connection
 export const testConnection = async (): Promise<void> => {
