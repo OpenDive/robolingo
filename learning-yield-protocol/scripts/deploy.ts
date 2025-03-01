@@ -75,7 +75,8 @@ async function main() {
       aUsdcAddress,
       aiAgentAddress,
       { 
-        gasLimit: 300000, // Use DEFAULT_GAS_LIMIT from .rpcrelay.env
+        gasLimit: 1000000,
+        gasPrice: ethers.parseUnits("360", "gwei")
       }
     );
 
@@ -83,8 +84,9 @@ async function main() {
     if (!deployTx) throw new Error("No deployment transaction found");
     
     console.log("\n🟣 Waiting for deployment transaction...");
-    const deployReceipt = await deployTx.wait();
-    if (!deployReceipt) throw new Error("No deployment receipt found");
+    console.log("Transaction hash:", deployTx.hash);
+    
+    const deployReceipt = await deployTx.wait(1); // Wait for 1 confirmation
 
     const contractAddress = await learningPool.getAddress();
     console.log("\nContract deployed to:", contractAddress);
