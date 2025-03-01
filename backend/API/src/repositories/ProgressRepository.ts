@@ -1,6 +1,6 @@
 import BaseRepository from './BaseRepository';
-import { Progress } from '../models';
-import { Lecture } from '../models';
+import Progress from '../models/Progress.model';
+import Lecture from '../models/Lecture.model';
 
 /**
  * Repository for Progress-specific data operations

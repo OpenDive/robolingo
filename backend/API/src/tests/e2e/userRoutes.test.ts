@@ -19,7 +19,7 @@ describe('User Routes', () => {
         .post('/api/users/register')
         .send({
           email: 'test@example.com',
-          password: 'password123',
+          password: 'Password123',
           firstName: 'Test',
           lastName: 'User'
         });

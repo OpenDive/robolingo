@@ -1,5 +1,5 @@
 import { body, param } from 'express-validator';
-import { QuestionType } from '../models/Question';
+import { QuestionType } from '../models/Question.model';
 
 /**
  * Validation schema for quiz creation

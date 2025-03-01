@@ -1,8 +1,8 @@
 import sequelize from '../config/database';
 import BaseService from './BaseService';
-import { Quiz } from '../models';
-import { Question } from '../models';
-import { QuestionType } from '../models/Question';
+import Quiz from '../models/Quiz.model';
+import Question from '../models/Question.model';
+import { QuestionType } from '../models/Question.model';
 import QuizRepository from '../repositories/QuizRepository';
 
 /**

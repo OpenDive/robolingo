@@ -1,5 +1,5 @@
 import { body, param, query } from 'express-validator';
-import { EnrollmentStatus } from '../models/Enrollment';
+import { EnrollmentStatus } from '../models/Enrollment.model';
 
 /**
  * Validation schema for course enrollment

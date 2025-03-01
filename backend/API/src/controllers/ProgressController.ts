@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
 import { ProgressService, LectureService, CourseService, EnrollmentService } from '../services';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/User.model';
 
 /**
  * Controller for progress-related API endpoints
@@ -95,7 +95,7 @@ class ProgressController extends BaseController<any> {
       
       // Get course to check if user is instructor
       const course = await this.courseService.findById(lecture.courseId);
-      const isInstructor = course?.instructorId === userId;
+      const isInstructor = course?.instructor.id === userId;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isEnrolled && !isInstructor && !isAdmin) {
@@ -325,7 +325,7 @@ class ProgressController extends BaseController<any> {
       
       // Get the course to check if user is instructor
       const course = await this.courseService.findById(courseId);
-      const isInstructor = course?.instructorId === userId;
+      const isInstructor = course?.instructor.id === userId;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isEnrolled && !isInstructor && !isAdmin) {

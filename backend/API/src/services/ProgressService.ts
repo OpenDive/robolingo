@@ -1,6 +1,6 @@
 import sequelize from '../config/database';
 import BaseService from './BaseService';
-import { Progress } from '../models';
+import Progress from '../models/Progress.model';
 import ProgressRepository from '../repositories/ProgressRepository';
 import EnrollmentRepository from '../repositories/EnrollmentRepository';
 import LectureRepository from '../repositories/LectureRepository';

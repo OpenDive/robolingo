@@ -1,9 +1,9 @@
 import { Op, WhereOptions } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import { ProficiencyLevel } from '../models/Course';
-import { Course } from '../models';
-import { User } from '../models';
-import { Lecture } from '../models';
+import { ProficiencyLevel } from '../models/Course.model';
+import Course from '../models/Course.model';
+import User from '../models/User.model';
+import Lecture from '../models/Lecture.model';
 
 /**
  * Repository for Course-specific data operations

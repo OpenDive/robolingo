@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
 import { QuizService, CourseService, LectureService, EnrollmentService } from '../services';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/User.model';
 
 /**
  * Controller for quiz-related API endpoints
@@ -53,7 +53,7 @@ class QuizController extends BaseController<any> {
       }
       
       // Check if user has access to the course
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isInstructor && !isAdmin) {
@@ -111,7 +111,7 @@ class QuizController extends BaseController<any> {
       }
       
       // Check if user has access to the lecture
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       const isPreview = lecture.isPreview;
       
@@ -173,7 +173,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -207,7 +207,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         const isPreview = lecture.isPreview;
         
@@ -282,7 +282,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -306,7 +306,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -357,7 +357,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -381,7 +381,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -437,7 +437,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -461,7 +461,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -589,7 +589,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -613,7 +613,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -669,7 +669,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {
@@ -693,7 +693,7 @@ class QuizController extends BaseController<any> {
           return;
         }
         
-        const isInstructor = userId === course.instructorId;
+        const isInstructor = userId === course.instructor.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         
         if (!isInstructor && !isAdmin) {

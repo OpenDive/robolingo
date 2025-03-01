@@ -1,9 +1,9 @@
 import { Op } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import { Enrollment } from '../models';
-import { EnrollmentStatus } from '../models/Enrollment';
-import { Course } from '../models';
-import { User } from '../models';
+import Enrollment from '../models/Enrollment.model';
+import { EnrollmentStatus } from '../models/Enrollment.model';
+import Course from '../models/Course.model';
+import User from '../models/User.model';
 
 /**
  * Repository for Enrollment-specific data operations

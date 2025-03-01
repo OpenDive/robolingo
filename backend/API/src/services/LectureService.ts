@@ -1,7 +1,7 @@
 import sequelize from '../config/database';
 import BaseService from './BaseService';
-import { LectureType } from '../models/Lecture';
-import { Lecture } from '../models';
+import { LectureType } from '../models/Lecture.model';
+import Lecture from '../models/Lecture.model';
 import LectureRepository from '../repositories/LectureRepository';
 import QuizRepository from '../repositories/QuizRepository';
 

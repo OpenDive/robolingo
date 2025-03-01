@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import BaseService from './BaseService';
-import { User } from '../models';
-import { UserRole } from '../models/User';
+import User from '../models/User.model';
+import { UserRole } from '../models/User.model';
 import UserRepository from '../repositories/UserRepository';
 import { config } from '../config/env';
 
@@ -49,7 +49,7 @@ class UserService extends BaseService<User, UserRepository> {
     }
 
     // Verify password
-    const isPasswordValid = await user.validatePassword(password);
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
     }
@@ -102,7 +102,7 @@ class UserService extends BaseService<User, UserRepository> {
     }
 
     // Validate current password
-    const isPasswordValid = await user.validatePassword(currentPassword);
+    const isPasswordValid = await user.comparePassword(currentPassword);
     if (!isPasswordValid) {
       throw new Error('Current password is incorrect');
     }

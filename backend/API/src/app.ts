@@ -6,9 +6,6 @@ import winston from 'winston';
 import { config, validateEnv } from './config/env';
 import sequelize, { testConnection } from './config/database';
 
-// Import models to initialize them
-import './models';
-
 // Import API routes
 import routes from './routes';
 

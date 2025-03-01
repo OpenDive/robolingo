@@ -1,7 +1,7 @@
 import { Transaction } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import { Lecture } from '../models';
-import { Quiz } from '../models';
+import Lecture from '../models/Lecture.model';
+import Quiz from '../models/Quiz.model';
 
 /**
  * Repository for Lecture-specific data operations

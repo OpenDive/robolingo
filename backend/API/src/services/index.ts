@@ -14,6 +14,7 @@ import {
   enrollmentRepository,
   progressRepository
 } from '../repositories';
+import { BlockchainService } from './BlockchainService';
 
 // Export service classes
 export {
@@ -41,3 +42,4 @@ export const progressService = new ProgressService(
   enrollmentRepository,
   lectureRepository
 );
+export const blockchainService = new BlockchainService();

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/User.model';
 
 /**
  * Type definition for JWT payload

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import { User } from '../models';
-import { UserRole } from '../models/User';
+import User from '../models/User.model';
+import { UserRole } from '../models/User.model';
 
 /**
  * Repository for User-specific data operations

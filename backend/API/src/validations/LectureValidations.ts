@@ -1,5 +1,5 @@
 import { body, param } from 'express-validator';
-import { LectureType } from '../models/Lecture';
+import { LectureType } from '../models/Lecture.model';
 
 /**
  * Validation schema for lecture creation

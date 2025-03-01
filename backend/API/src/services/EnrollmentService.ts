@@ -1,8 +1,8 @@
 import { Transaction } from 'sequelize';
 import sequelize from '../config/database';
 import BaseService from './BaseService';
-import { EnrollmentStatus } from '../models/Enrollment';
-import { Enrollment } from '../models';
+import { EnrollmentStatus } from '../models/Enrollment.model';
+import Enrollment from '../models/Enrollment.model';
 import EnrollmentRepository from '../repositories/EnrollmentRepository';
 import CourseRepository from '../repositories/CourseRepository';
 import ProgressRepository from '../repositories/ProgressRepository';

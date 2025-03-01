@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
 import { UserService } from '../services';
-import { UserRole } from '../models/User';
-import { User } from '../models';
+import { UserRole } from '../models/User.model';
+import User from '../models/User.model';
 
 /**
  * Controller for user-related API endpoints

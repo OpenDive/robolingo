@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/User.model';
 
 /**
  * Instructor authentication middleware

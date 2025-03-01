@@ -1,11 +1,11 @@
 import { Transaction } from 'sequelize';
 import sequelize from '../config/database';
 import BaseService from './BaseService';
-import { Course } from '../models';
-import { ProficiencyLevel } from '../models/Course';
+import Course from '../models/Course.model';
+import { ProficiencyLevel } from '../models/Course.model';
 import CourseRepository from '../repositories/CourseRepository';
 import LectureRepository from '../repositories/LectureRepository';
-import { LectureType } from '../models/Lecture';
+import { LectureType } from '../models/Lecture.model';
 
 /**
  * Service for course-related operations

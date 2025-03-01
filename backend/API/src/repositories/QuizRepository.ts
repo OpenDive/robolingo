@@ -1,7 +1,7 @@
 import { Transaction } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import { Quiz } from '../models';
-import { Question } from '../models';
+import Quiz from '../models/Quiz.model';
+import Question from '../models/Question.model';
 
 /**
  * Repository for Quiz-specific data operations
@@ -187,7 +187,7 @@ class QuizRepository extends BaseRepository<Quiz> {
     
     // Map questions by ID for easy lookup
     const questionMap = new Map<string, Question>();
-    questions.forEach(question => questionMap.set(question.id, question));
+    questions.forEach((question: Question) => questionMap.set(question.id, question));
     
     // Update order for each question
     const updatePromises = questionOrder.map((questionId, index) => {

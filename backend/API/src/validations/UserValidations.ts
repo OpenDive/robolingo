@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/User.model';
 
 /**
  * Validation schema for user registration

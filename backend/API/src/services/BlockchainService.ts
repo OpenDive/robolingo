@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
-import { User } from '../models';
-import { Enrollment } from '../models';
+import User from '../models/User.model';
+import Enrollment from '../models/Enrollment.model';
 
 @Service()
 export class BlockchainService {

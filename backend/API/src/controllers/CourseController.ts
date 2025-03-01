@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
 import { CourseService } from '../services';
-import { ProficiencyLevel } from '../models/Course';
-import { UserRole } from '../models/User';
+import { ProficiencyLevel } from '../models/Course.model';
+import { UserRole } from '../models/User.model';
 
 /**
  * Controller for course-related API endpoints
@@ -117,7 +117,7 @@ class CourseController extends BaseController<any> {
       }
       
       // Check if course is published or user is the instructor/admin
-      const isInstructor = req.user?.id === course.instructorId;
+      const isInstructor = req.user?.id === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!course.isPublished && !isInstructor && !isAdmin) {
@@ -249,7 +249,7 @@ class CourseController extends BaseController<any> {
       }
       
       // Check if user is the course instructor or an admin
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isInstructor && !isAdmin) {
@@ -311,7 +311,7 @@ class CourseController extends BaseController<any> {
       }
       
       // Check if user is the course instructor or an admin
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isInstructor && !isAdmin) {
@@ -358,7 +358,7 @@ class CourseController extends BaseController<any> {
       }
       
       // Check if user is the course instructor or an admin
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isInstructor && !isAdmin) {
@@ -405,7 +405,7 @@ class CourseController extends BaseController<any> {
       }
       
       // Check if user is the course instructor or an admin
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isInstructor && !isAdmin) {

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import BaseController from './BaseController';
 import { EnrollmentService, CourseService, UserService } from '../services';
-import { UserRole } from '../models/User';
-import { EnrollmentStatus } from '../models/Enrollment';
+import { UserRole } from '../models/User.model';
+import { EnrollmentStatus } from '../models/Enrollment.model';
 import { BlockchainService } from '../services/BlockchainService';
 
 /**
@@ -92,7 +92,7 @@ class EnrollmentController extends BaseController<any> {
       }
       
       // Check if user is the course instructor or admin
-      const isInstructor = userId === course.instructorId;
+      const isInstructor = userId === course.instructor.id;
       const isAdmin = req.user?.role === UserRole.ADMIN;
       
       if (!isInstructor && !isAdmin) {
@@ -283,7 +283,7 @@ class EnrollmentController extends BaseController<any> {
       let isCourseInstructor = false;
       if (isInstructor) {
         const course = await this.courseService.findById(enrollment.courseId);
-        isCourseInstructor = course?.instructorId === userId;
+        isCourseInstructor = course?.instructor.id === userId;
       }
       
       if (!isOwner && !isAdmin && !isCourseInstructor) {
@@ -343,7 +343,7 @@ class EnrollmentController extends BaseController<any> {
       let isCourseInstructor = false;
       if (isInstructor) {
         const course = await this.courseService.findById(enrollment.courseId);
-        isCourseInstructor = course?.instructorId === userId;
+        isCourseInstructor = course?.instructor.id === userId;
       }
       
       if (!isAdmin && !isCourseInstructor) {

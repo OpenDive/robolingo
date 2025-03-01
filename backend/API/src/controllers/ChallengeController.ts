@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Challenge, ChallengeType, ChallengeStatus } from '../models/Challenge';
-import { User } from '../models';
-import { Group } from '../models/Group';
-import { Message } from '../models/Message';
+import Challenge from '../models/Challenge.model';
+import User from '../models/User.model';
+import Group from '../models/Group.model';
+import Message from '../models/Message.model';
 
 export class ChallengeController {
   async createChallenge(req: Request, res: Response, next: NextFunction) {
@@ -33,7 +33,7 @@ export class ChallengeController {
       });
 
       // Add participants
-      await group.addMembers([creator.id, ...participants]);
+      await group.addMembers([creator.id, ...participants].map(id => id as string));
       
       res.status(201).json({ challenge, group });
     } catch (error) {

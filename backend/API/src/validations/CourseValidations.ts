@@ -1,5 +1,5 @@
 import { body, query, param } from 'express-validator';
-import { ProficiencyLevel } from '../models/Course';
+import { ProficiencyLevel } from '../models/Course.model';
 
 /**
  * Validation schema for course creation

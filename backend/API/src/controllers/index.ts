@@ -12,7 +12,8 @@ import {
   lectureService,
   quizService,
   enrollmentService,
-  progressService
+  progressService,
+  blockchainService
 } from '../services';
 
 // Export controller classes
@@ -42,7 +43,9 @@ export const quizController = new QuizController(
 );
 export const enrollmentController = new EnrollmentController(
   enrollmentService,
-  courseService
+  courseService,
+  blockchainService,
+  userService
 );
 export const progressController = new ProgressController(
   progressService,

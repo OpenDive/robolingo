@@ -1,10 +1,9 @@
 import UserService from '../../services/UserService';
-import { User } from '../../models';
+import User from '../../models/User.model';
 import { setupTestDB, clearTestDB } from '../utils';
-import { describe, it } from 'node:test';
 import UserRepository from '../../repositories/UserRepository';
+import { describe, it, beforeAll, afterAll } from '@jest/globals';
 import expect from 'expect';
-import { beforeAll, afterAll } from '@jest/globals';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -19,12 +18,16 @@ describe('UserService', () => {
   });
 
   describe('createUser', () => {
-    it('should create a new user', async () => {
+    it('should create a new user with required fields', async () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
         firstName: 'John',
-        lastName: 'Doe'
+        lastName: 'Doe',
+        walletAddress: '0x1234567890abcdef',
+        friends: [],
+        dailyProgress: {},
+        streak: 0
       };
 
       const user = await userService.createUser(userData);
