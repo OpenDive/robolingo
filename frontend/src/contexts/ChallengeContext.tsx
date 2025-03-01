@@ -33,6 +33,7 @@ interface ChallengeContextType {
   groups: Group[]
   addChallenge: (challenge: Omit<Challenge, 'id' | 'progress'>) => void
   addGroup: (group: Omit<Group, 'id'>) => void
+  deleteChallenge: (id: number) => void
 }
 
 const ChallengeContext = createContext<ChallengeContextType | undefined>(undefined)
@@ -123,6 +124,11 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setChallenges([...challenges, newChallenge])
   }
   
+  // Delete a challenge
+  const deleteChallenge = (id: number) => {
+    setChallenges(challenges.filter(challenge => challenge.id !== id))
+  }
+  
   // Add a new group
   const addGroup = (group: Omit<Group, 'id'>) => {
     // Generate a slug-like ID from the name
@@ -136,7 +142,7 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }
   
   return (
-    <ChallengeContext.Provider value={{ challenges, groups, addChallenge, addGroup }}>
+    <ChallengeContext.Provider value={{ challenges, groups, addChallenge, addGroup, deleteChallenge }}>
       {children}
     </ChallengeContext.Provider>
   )

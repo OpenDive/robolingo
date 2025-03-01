@@ -6,7 +6,11 @@ import Link from 'next/link'
 import { generateInviteCode } from '@/utils/inviteCode'
 import { useChallengeContext } from '@/contexts/ChallengeContext';
 
-export default function CreateChallengeForm() {
+interface CreateChallengeFormProps {
+  onComplete?: () => void;
+}
+
+export default function CreateChallengeForm({ onComplete }: CreateChallengeFormProps) {
   const { addChallenge, addGroup } = useChallengeContext();
   const [challengeType, setChallengeType] = useState<'no-loss' | 'hardcore'>('no-loss')
   const [title, setTitle] = useState('')
@@ -88,6 +92,11 @@ export default function CreateChallengeForm() {
     
     // Show success screen
     setShowSuccessScreen(true);
+    
+    // Call onComplete callback if provided
+    if (onComplete) {
+      onComplete();
+    }
   }
 
   const handleCopyCode = () => {
