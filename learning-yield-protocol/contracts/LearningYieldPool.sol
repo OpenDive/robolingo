@@ -32,6 +32,7 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         mapping(address => UserInfo) users;
         uint256 memberCount;
         uint256 maxMembers;
+        address[] members;  // Array to track member addresses
     }
 
     struct UserInfo {
@@ -121,6 +122,7 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         group.users[msg.sender].hasStaked = true;
         group.totalStaked += group.stakingAmount;
         group.memberCount++;
+        group.members.push(msg.sender);  // Add member to array
 
         // If group is full, deposit total staked amount to Aave
         if (group.memberCount == group.maxMembers) {
@@ -210,8 +212,14 @@ contract LearningYieldPool is Ownable, ReentrancyGuard {
         require(!group.users[msg.sender].hasClaimedYield, "Already claimed");
 
         uint256 progress = group.users[msg.sender].progressPercentage;
-        // Calculate yield share based on progress percentage
-        uint256 yieldShare = (group.totalYield * progress) / 100;
+        // Calculate total progress across all users
+        uint256 totalProgress = 0;
+        for (uint256 i = 0; i < group.members.length; i++) {
+            totalProgress += group.users[group.members[i]].progressPercentage;
+        }
+        
+        // Calculate yield share based on relative progress
+        uint256 yieldShare = (group.totalYield * progress) / totalProgress;
 
         group.users[msg.sender].hasClaimedYield = true;
         group.users[msg.sender].yieldAllocation = yieldShare;
