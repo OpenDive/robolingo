@@ -8,7 +8,23 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
  * Configuration object for the application
  * Loads and validates required environment variables
  */
-export const config = {
+export interface Config {
+  env: string;
+  port: number;
+  db: {
+    host: string;
+    port: number;
+    name: string;
+    user: string;
+    password: string;
+    dialect: string;
+  };
+  jwtSecret: string;
+  jwtExpiresIn: string;
+  logLevel: string;
+}
+
+export const config: Config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
   db: {
@@ -17,6 +33,7 @@ export const config = {
     name: process.env.DB_NAME || 'language_marketplace',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
+    dialect: process.env.DB_DIALECT || 'postgres'
   },
   jwtSecret: process.env.JWT_SECRET || 'your_jwt_secret_key',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',

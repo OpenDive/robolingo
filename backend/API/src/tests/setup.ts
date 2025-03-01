@@ -1,29 +1,24 @@
+import { syncDatabase } from '../config/database';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load test environment variables
-dotenv.config({ 
-  path: path.join(__dirname, '../../.env.test'),
-  override: true 
-});
+// Load environment variables from .env.test file
+dotenv.config({ path: path.join(__dirname, '../../.env.test') });
 
-// Set testing environment
-process.env.NODE_ENV = 'test';
-
-// Import test configuration
-import '../config/testEnv';
-
-/**
- * Global setup for tests
- */
+// Global setup before all tests
 beforeAll(async () => {
-  // No need to do anything here, each test file will set up its own database
-  console.log('Test environment setup complete');
+  try {
+    // Force sync database in test mode
+    await syncDatabase(true);
+    console.log('Test environment setup complete');
+  } catch (error) {
+    console.error('Test setup failed:', error);
+    throw error;
+  }
 });
 
-/**
- * Global teardown for tests
- */
+// Global teardown after all tests
 afterAll(async () => {
-  // No need to do anything here, each test file will clean up its own database
+  // Any cleanup code here
+  console.log('Test environment teardown complete');
 }); 

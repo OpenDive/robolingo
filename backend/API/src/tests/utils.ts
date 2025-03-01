@@ -2,6 +2,11 @@ import { CreationAttributes } from 'sequelize/types/model';
 import { Sequelize } from 'sequelize-typescript';
 import { setupTestDb } from './testDatabase';
 import { ModelCtor } from 'sequelize-typescript';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/env';
+import User from '../models/User.model';
+import { Secret, SignOptions } from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 
 // Sequelize instance for tests
 let testSequelize: Sequelize | null = null;
@@ -53,4 +58,46 @@ export const getTestDB = (): Sequelize => {
 
 export const createTestData = async <T extends ModelCtor>(model: T, data: CreationAttributes<InstanceType<T>>) => {
   return model.create(data);
+};
+
+/**
+ * Generate a valid JWT token for a test user
+ * @param user User object to generate token for
+ * @returns JWT token string
+ */
+export const generateAuthToken = (user: User): string => {
+  const payload = {
+    id: user.id,
+    walletAddress: user.walletAddress
+  };
+  
+  return jwt.sign(
+    payload, 
+    config.jwtSecret as Secret, 
+    { expiresIn: config.jwtExpiresIn } as SignOptions
+  );
+};
+
+/**
+ * Clean up test data after tests
+ */
+export const cleanupTestData = async (): Promise<void> => {
+  // Add cleanup logic as needed
+};
+
+/**
+ * Creates a test user with default values for required fields
+ */
+export const createTestUser = async (overrides = {}) => {
+  return User.create({
+    email: `test-${uuidv4()}@example.com`,
+    password: 'password123',
+    firstName: 'Test',
+    lastName: 'User',
+    walletAddress: `0x${uuidv4().replace(/-/g, '')}`,
+    friends: [],
+    dailyProgress: {},
+    streak: 0,
+    ...overrides
+  });
 };
