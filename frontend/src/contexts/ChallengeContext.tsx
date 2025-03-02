@@ -13,6 +13,7 @@ export interface Challenge {
   minDailyTime?: number
   type?: 'no-loss' | 'hardcore'
   createdAt?: Date
+  streak?: number
 }
 
 export interface Group {
@@ -34,6 +35,8 @@ interface ChallengeContextType {
   addChallenge: (challenge: Omit<Challenge, 'id' | 'progress'>) => void
   addGroup: (group: Omit<Group, 'id'>) => void
   deleteChallenge: (id: number) => void
+  getCurrentStreak: (challengeId: number) => number
+  updateChallengeStreak: (challengeId: number) => void
 }
 
 const ChallengeContext = createContext<ChallengeContextType | undefined>(undefined)
@@ -53,6 +56,7 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       createdAt: new Date('2023-05-01').toISOString(),
       daysLeft: 74,
       progress: 18,
+      streak: 5,
     },
     {
       id: 2,
@@ -66,6 +70,7 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       createdAt: new Date('2023-05-10').toISOString(),
       daysLeft: 54,
       progress: 10,
+      streak: 3,
     }
   ])
   
@@ -124,7 +129,8 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const newChallenge: Challenge = {
       ...challenge,
       id: challenges.length + 1,
-      progress: 0 // New challenges start at 0% progress
+      progress: 0, // New challenges start at 0% progress
+      streak: 0 // New challenges start with 0 streak
     }
     
     setChallenges([...challenges, newChallenge])
@@ -147,8 +153,38 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setGroups([...groups, newGroup])
   }
   
+  // Get current streak for a challenge
+  const getCurrentStreak = (challengeId: number): number => {
+    const challenge = challenges.find(c => c.id === challengeId)
+    return challenge?.streak || 0
+  }
+  
+  // Update streak for a challenge after completing a quiz
+  const updateChallengeStreak = (challengeId: number) => {
+    setChallenges(prevChallenges => {
+      return prevChallenges.map(challenge => {
+        if (challenge.id === challengeId) {
+          return {
+            ...challenge,
+            streak: (challenge.streak || 0) + 1,
+            progress: Math.min(100, challenge.progress + 2) // Also increase progress slightly
+          }
+        }
+        return challenge
+      })
+    })
+  }
+  
   return (
-    <ChallengeContext.Provider value={{ challenges, groups, addChallenge, addGroup, deleteChallenge }}>
+    <ChallengeContext.Provider value={{ 
+      challenges, 
+      groups, 
+      addChallenge, 
+      addGroup, 
+      deleteChallenge,
+      getCurrentStreak,
+      updateChallengeStreak
+    }}>
       {children}
     </ChallengeContext.Provider>
   )
